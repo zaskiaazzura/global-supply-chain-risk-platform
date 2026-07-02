@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PositiveWordsSeeder::class,
             NegativeWordsSeeder::class,
+            CountryPortSeeder::class,
         ]);
     }
 }
