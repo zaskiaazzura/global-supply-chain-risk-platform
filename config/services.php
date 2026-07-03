@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'exchange_rate' => [
+        'key' => env('EXCHANGE_RATE_API_KEY'),
+    ],
+
+    'gnews' => [
+        'key' => env('GNEWS_API_KEY'),
+    ],
+
+    'marine_traffic' => [
+        'key' => env('MARINE_TRAFFIC_API_KEY'),
+    ],
+
+    'rest_countries' => [
+        'key' => env('REST_COUNTRIES_API_KEY'),
+    ],
+
 ];

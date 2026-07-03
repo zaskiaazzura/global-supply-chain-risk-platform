@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
             PositiveWordsSeeder::class,
             NegativeWordsSeeder::class,
             RiskWeightsSeeder::class,
-            CountriesSeeder::class,
+            CountriesTableSeeder::class,
         ]);
     }
 }
