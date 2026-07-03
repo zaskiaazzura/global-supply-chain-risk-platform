@@ -1,0 +1,150 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\Country;
+
+class CountriesSeeder extends Seeder
+{
+    public function run()
+    {
+        $countries = [
+            [
+                'name' => 'Germany',
+                'code' => 'DEU',
+                'alpha2' => 'DE',
+                'capital' => 'Berlin',
+                'currency' => 'EUR',
+                'currency_symbol' => '€',
+                'region' => 'Europe',
+                'subregion' => 'Western Europe',
+                'latitude' => 51.1657,
+                'longitude' => 10.4515,
+                'population' => 83166711,
+                'gdp' => 4456000000000,
+                'inflation_rate' => 2.3,
+                'timezone' => 'Europe/Berlin',
+            ],
+            [
+                'name' => 'China',
+                'code' => 'CHN',
+                'alpha2' => 'CN',
+                'capital' => 'Beijing',
+                'currency' => 'CNY',
+                'currency_symbol' => '¥',
+                'region' => 'Asia',
+                'subregion' => 'Eastern Asia',
+                'latitude' => 35.8617,
+                'longitude' => 104.1954,
+                'population' => 1411778724,
+                'gdp' => 17734000000000,
+                'inflation_rate' => 1.8,
+                'timezone' => 'Asia/Shanghai',
+            ],
+            [
+                'name' => 'Indonesia',
+                'code' => 'IDN',
+                'alpha2' => 'ID',
+                'capital' => 'Jakarta',
+                'currency' => 'IDR',
+                'currency_symbol' => 'Rp',
+                'region' => 'Asia',
+                'subregion' => 'South-Eastern Asia',
+                'latitude' => -0.7893,
+                'longitude' => 113.9213,
+                'population' => 273523615,
+                'gdp' => 1319000000000,
+                'inflation_rate' => 3.8,
+                'timezone' => 'Asia/Jakarta',
+            ],
+            [
+                'name' => 'United States',
+                'code' => 'USA',
+                'alpha2' => 'US',
+                'capital' => 'Washington, D.C.',
+                'currency' => 'USD',
+                'currency_symbol' => '$',
+                'region' => 'Americas',
+                'subregion' => 'North America',
+                'latitude' => 37.0902,
+                'longitude' => -95.7129,
+                'population' => 331002651,
+                'gdp' => 25439600000000,
+                'inflation_rate' => 4.1,
+                'timezone' => 'America/New_York',
+            ],
+            [
+                'name' => 'Japan',
+                'code' => 'JPN',
+                'alpha2' => 'JP',
+                'capital' => 'Tokyo',
+                'currency' => 'JPY',
+                'currency_symbol' => '¥',
+                'region' => 'Asia',
+                'subregion' => 'Eastern Asia',
+                'latitude' => 36.2048,
+                'longitude' => 138.2529,
+                'population' => 125836021,
+                'gdp' => 4233000000000,
+                'inflation_rate' => 2.5,
+                'timezone' => 'Asia/Tokyo',
+            ],
+            [
+                'name' => 'Australia',
+                'code' => 'AUS',
+                'alpha2' => 'AU',
+                'capital' => 'Canberra',
+                'currency' => 'AUD',
+                'currency_symbol' => 'A$',
+                'region' => 'Oceania',
+                'subregion' => 'Australia and New Zealand',
+                'latitude' => -25.2744,
+                'longitude' => 133.7751,
+                'population' => 25687041,
+                'gdp' => 1693000000000,
+                'inflation_rate' => 5.4,
+                'timezone' => 'Australia/Sydney',
+            ],
+            [
+                'name' => 'Singapore',
+                'code' => 'SGP',
+                'alpha2' => 'SG',
+                'capital' => 'Singapore',
+                'currency' => 'SGD',
+                'currency_symbol' => 'S$',
+                'region' => 'Asia',
+                'subregion' => 'South-Eastern Asia',
+                'latitude' => 1.3521,
+                'longitude' => 103.8198,
+                'population' => 5850342,
+                'gdp' => 466788000000,
+                'inflation_rate' => 4.8,
+                'timezone' => 'Asia/Singapore',
+            ],
+            [
+                'name' => 'Netherlands',
+                'code' => 'NLD',
+                'alpha2' => 'NL',
+                'capital' => 'Amsterdam',
+                'currency' => 'EUR',
+                'currency_symbol' => '€',
+                'region' => 'Europe',
+                'subregion' => 'Western Europe',
+                'latitude' => 52.1326,
+                'longitude' => 5.2913,
+                'population' => 17411534,
+                'gdp' => 1017000000000,
+                'inflation_rate' => 3.2,
+                'timezone' => 'Europe/Amsterdam',
+            ],
+        ];
+
+        foreach ($countries as $country) {
+            Country::firstOrCreate(
+                ['code' => $country['code']],
+                $country
+            );
+        }
+    }
+}
