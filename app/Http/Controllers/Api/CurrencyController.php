@@ -17,7 +17,6 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Get all currency rates
      * GET /api/currency
      */
     public function index(Request $request)
@@ -27,7 +26,6 @@ class CurrencyController extends Controller
         $rates = $this->exchangeRate->getLatestRates($base);
 
         if (!$rates) {
-            // Fallback to database
             $currencies = Currency::all();
             return response()->json([
                 'success' => true,
@@ -46,7 +44,6 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Get specific currency rate
      * GET /api/currency/{code}
      */
     public function show($code, Request $request)
@@ -63,7 +60,6 @@ class CurrencyController extends Controller
             ], 404);
         }
 
-        // Also get from database for historical
         $currency = Currency::where('code', $code)->first();
 
         return response()->json([
@@ -83,7 +79,6 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Get historical rates
      * GET /api/currency/historical/{code}
      */
     public function historical($code, Request $request)
@@ -109,8 +104,7 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Convert currency
-     * GET /api/currency/convert?from=USD&to=IDR&amount=100
+     * GET /api/currency/convert
      */
     public function convert(Request $request)
     {
@@ -134,7 +128,6 @@ class CurrencyController extends Controller
     }
 
     /**
-     * Sync currency rates
      * POST /api/currency/sync
      */
     public function sync()

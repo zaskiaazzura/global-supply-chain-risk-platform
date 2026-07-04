@@ -21,8 +21,8 @@ class NewsController extends Controller
     }
 
     /**
-     * Get news
      * GET /api/news
+     * Get news with filters
      */
     public function index(Request $request)
     {
@@ -30,7 +30,7 @@ class NewsController extends Controller
         $max = $request->get('max', 10);
         $country = $request->get('country');
 
-        // Try to get from cache first
+        // Try from cache first
         $news = NewsCache::where('category', 'logistics')
             ->when($country, function ($q) use ($country) {
                 return $q->whereHas('country', function ($sub) use ($country) {
@@ -41,27 +41,41 @@ class NewsController extends Controller
             ->limit($max)
             ->get();
 
-        // If cache is empty, fetch from API
+        // If cache empty, fetch from API
         if ($news->isEmpty()) {
             $newsData = $this->gNews->getLogisticsNews($country, $max);
             
-            if ($newsData) {
-                foreach ($newsData as $article) {
-                    // Save to cache
-                    $countryModel = $country ? Country::where('code', $country)->first() : null;
-                    NewsCache::create([
-                        'country_id' => $countryModel->id ?? null,
-                        'title' => $article['title'] ?? null,
-                        'description' => $article['description'] ?? null,
-                        'content' => $article['content'] ?? null,
-                        'source' => $article['source']['name'] ?? null,
-                        'url' => $article['url'] ?? null,
-                        'image_url' => $article['image'] ?? null,
-                        'published_at' => isset($article['publishedAt']) ? date('Y-m-d H:i:s', strtotime($article['publishedAt'])) : now(),
-                        'category' => 'logistics'
-                    ]);
+            if ($newsData && count($newsData) > 0) {
+                // Cari country model jika ada parameter country
+                $countryModel = null;
+                if ($country) {
+                    $countryModel = Country::where('code', $country)
+                        ->orWhere('alpha2', $country)
+                        ->first();
                 }
-                
+
+                foreach ($newsData as $article) {
+                    // HANYA INSERT JIKA ADA countryModel
+                    if ($countryModel) {
+                        try {
+                            NewsCache::create([
+                                'country_id' => $countryModel->id,
+                                'title' => $article['title'] ?? null,
+                                'description' => $article['description'] ?? null,
+                                'content' => $article['content'] ?? null,
+                                'source' => $article['source']['name'] ?? null,
+                                'url' => $article['url'] ?? null,
+                                'image_url' => $article['image'] ?? null,
+                                'published_at' => isset($article['publishedAt']) 
+                                    ? date('Y-m-d H:i:s', strtotime($article['publishedAt']))
+                                    : now(),
+                                'category' => 'logistics'
+                            ]);
+                        } catch (\Exception $e) {
+                            // Skip jika error (misal duplicate URL)
+                        }
+                    }
+                }
                 $news = collect($newsData);
             }
         }
@@ -74,7 +88,6 @@ class NewsController extends Controller
     }
 
     /**
-     * Get news by category
      * GET /api/news/category/{category}
      */
     public function byCategory($category, Request $request)
@@ -93,7 +106,6 @@ class NewsController extends Controller
     }
 
     /**
-     * Get news by country
      * GET /api/news/country/{country}
      */
     public function byCountry($country, Request $request)
@@ -116,10 +128,32 @@ class NewsController extends Controller
             ->limit($max)
             ->get();
 
+        // Jika tidak ada di cache, fetch dari API dan simpan
         if ($news->isEmpty()) {
-            // Fetch from API
             $newsData = $this->gNews->getEconomicNews($country, $max);
-            $news = collect($newsData);
+            
+            if ($newsData && count($newsData) > 0) {
+                foreach ($newsData as $article) {
+                    try {
+                        NewsCache::create([
+                            'country_id' => $countryModel->id,
+                            'title' => $article['title'] ?? null,
+                            'description' => $article['description'] ?? null,
+                            'content' => $article['content'] ?? null,
+                            'source' => $article['source']['name'] ?? null,
+                            'url' => $article['url'] ?? null,
+                            'image_url' => $article['image'] ?? null,
+                            'published_at' => isset($article['publishedAt']) 
+                                ? date('Y-m-d H:i:s', strtotime($article['publishedAt']))
+                                : now(),
+                            'category' => 'economic'
+                        ]);
+                    } catch (\Exception $e) {
+                        // Skip jika error
+                    }
+                }
+                $news = collect($newsData);
+            }
         }
 
         return response()->json([
@@ -131,7 +165,6 @@ class NewsController extends Controller
     }
 
     /**
-     * Sentiment analysis for country news
      * GET /api/news/sentiment/{country}
      */
     public function sentimentAnalysis($country)

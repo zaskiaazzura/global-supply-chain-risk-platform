@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             NegativeWordsSeeder::class,
             RiskWeightsSeeder::class,
             CountriesTableSeeder::class,
+            PortsTableSeeder::class,
+            RiskScoresSeeder::class,  
         ]);
     }
 }

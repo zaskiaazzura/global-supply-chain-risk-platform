@@ -4,35 +4,48 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
-use App\Services\RestCountriesService;
 use App\Services\WorldBankService;
 use App\Services\OpenMeteoService;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
-    protected $restCountries;
     protected $worldBank;
     protected $openMeteo;
 
-    public function __construct(
-        RestCountriesService $restCountries,
-        WorldBankService $worldBank,
-        OpenMeteoService $openMeteo
-    ) {
-        $this->restCountries = $restCountries;
+    public function __construct(WorldBankService $worldBank, OpenMeteoService $openMeteo)
+    {
         $this->worldBank = $worldBank;
         $this->openMeteo = $openMeteo;
     }
 
     /**
-     * Get all countries
      * GET /api/countries
+     * Get all countries with optional filters
      */
-    public function index()
+    public function index(Request $request)
     {
-        $countries = Country::all();
-        
+        $query = Country::query();
+
+        // Filter by region
+        if ($request->has('region')) {
+            $query->where('region', $request->region);
+        }
+
+        // Filter by search
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('code', 'LIKE', "%{$search}%");
+        }
+
+        // Limit
+        if ($request->has('limit')) {
+            $query->limit($request->limit);
+        }
+
+        $countries = $query->get();
+
         return response()->json([
             'success' => true,
             'count' => $countries->count(),
@@ -41,15 +54,15 @@ class CountryController extends Controller
     }
 
     /**
-     * Get country by code
      * GET /api/countries/{code}
+     * Get detailed country data including economic and weather
      */
     public function show($code)
     {
         $country = Country::where('code', $code)
             ->orWhere('alpha2', $code)
             ->first();
-        
+
         if (!$country) {
             return response()->json([
                 'success' => false,
@@ -57,13 +70,22 @@ class CountryController extends Controller
             ], 404);
         }
 
-        // Get additional data from external APIs
+        // Get economic data from World Bank
         $economicData = $this->worldBank->getAllIndicators($code);
-        $weather = $this->openMeteo->getCurrentWeather(
-            $country->latitude ?? 0,
-            $country->longitude ?? 0
-        );
-        $riskScore = $country->riskScores()->latest('calculated_at')->first();
+
+        // Get weather data from Open-Meteo
+        $weather = null;
+        if ($country->latitude && $country->longitude) {
+            $weather = $this->openMeteo->getCurrentWeather(
+                $country->latitude,
+                $country->longitude
+            );
+        }
+
+        // Get latest risk score
+        $riskScore = $country->riskScores()
+            ->latest('calculated_at')
+            ->first();
 
         return response()->json([
             'success' => true,
@@ -77,23 +99,8 @@ class CountryController extends Controller
     }
 
     /**
-     * Sync countries from REST Countries API
-     * GET /api/countries/sync
-     */
-    public function syncFromAPI()
-    {
-        $result = $this->restCountries->syncCountriesToDatabase();
-        
-        return response()->json([
-            'success' => $result['success'],
-            'message' => $result['success'] ? 'Countries synced successfully' : 'Failed to sync countries',
-            'count' => $result['count'] ?? 0
-        ]);
-    }
-
-    /**
-     * Compare two countries
      * GET /api/countries/compare/{code1}/{code2}
+     * Compare two countries
      */
     public function compare($code1, $code2)
     {
@@ -121,6 +128,7 @@ class CountryController extends Controller
                 'country1' => [
                     'name' => $country1->name,
                     'code' => $country1->code,
+                    'flag' => $country1->flag_url,
                     'gdp' => $eco1['gdp'] ?? null,
                     'inflation' => $eco1['inflation'] ?? null,
                     'population' => $eco1['population'] ?? null,
@@ -130,6 +138,7 @@ class CountryController extends Controller
                 'country2' => [
                     'name' => $country2->name,
                     'code' => $country2->code,
+                    'flag' => $country2->flag_url,
                     'gdp' => $eco2['gdp'] ?? null,
                     'inflation' => $eco2['inflation'] ?? null,
                     'population' => $eco2['population'] ?? null,
@@ -142,6 +151,19 @@ class CountryController extends Controller
                     'population_difference' => ($eco1['population'] ?? 0) - ($eco2['population'] ?? 0)
                 ]
             ]
+        ]);
+    }
+
+    /**
+     * GET /api/countries/sync
+     * Sync countries from external API (placeholder)
+     */
+    public function syncFromAPI()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Countries already synced via seeder',
+            'count' => Country::count()
         ]);
     }
 }

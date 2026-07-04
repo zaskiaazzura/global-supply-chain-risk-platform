@@ -18,12 +18,13 @@ class RiskController extends Controller
     }
 
     /**
-     * Get all risk scores
      * GET /api/risk
+     * Get all risk scores
      */
     public function index()
     {
-        $riskScores = RiskScore::with('country')
+        // Ambil semua risk score dengan relasi country
+        $riskScores = RiskScore::with('country')  // ← PASTIKAN 'country' (bukan 'countries')
             ->latest('calculated_at')
             ->get()
             ->groupBy('country_id')
@@ -40,8 +41,8 @@ class RiskController extends Controller
     }
 
     /**
-     * Get risk score for a country
      * GET /api/risk/{country}
+     * Get risk score for a specific country
      */
     public function show($country)
     {
@@ -71,8 +72,8 @@ class RiskController extends Controller
     }
 
     /**
-     * Calculate risk score for a country
      * GET /api/risk/calculate/{country}
+     * Calculate risk score for a country
      */
     public function calculate($country)
     {

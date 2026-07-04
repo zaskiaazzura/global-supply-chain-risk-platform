@@ -18,14 +18,13 @@ class PortController extends Controller
     }
 
     /**
-     * Get all ports
      * GET /api/ports
+     * Get all ports with filters
      */
     public function index(Request $request)
     {
         $query = Port::with('country');
 
-        // Filter by country
         if ($request->has('country')) {
             $query->whereHas('country', function ($q) use ($request) {
                 $q->where('code', $request->country)
@@ -33,14 +32,18 @@ class PortController extends Controller
             });
         }
 
-        // Filter by type
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        // Filter by size
         if ($request->has('size')) {
             $query->where('size', $request->size);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('city', 'LIKE', "%{$search}%");
         }
 
         $ports = $query->get();
@@ -53,8 +56,8 @@ class PortController extends Controller
     }
 
     /**
-     * Get port by ID
      * GET /api/ports/{id}
+     * Get port by ID
      */
     public function show($id)
     {
@@ -74,8 +77,8 @@ class PortController extends Controller
     }
 
     /**
+     * GET /api/ports/search
      * Search ports
-     * GET /api/ports/search?q=keyword
      */
     public function search(Request $request)
     {
@@ -102,8 +105,8 @@ class PortController extends Controller
     }
 
     /**
-     * Get ports by country
      * GET /api/ports/country/{countryCode}
+     * Get ports by country
      */
     public function byCountry($countryCode)
     {
@@ -129,8 +132,8 @@ class PortController extends Controller
     }
 
     /**
-     * Sync ports from Marine Traffic API
      * POST /api/ports/sync
+     * Sync ports from Marine Traffic API
      */
     public function sync()
     {
