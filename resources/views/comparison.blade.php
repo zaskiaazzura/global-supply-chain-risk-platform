@@ -1,0 +1,215 @@
+@extends('layouts.app')
+
+@section('title', 'Country Comparison')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-arrows-left-right text-primary"></i> Country Comparison</h1>
+            <p class="text-muted">Bandingkan dua negara berdasarkan GDP, Inflasi, Risk, Cuaca, dan Mata Uang</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Negara 1</h5>
+                    <select id="country1" class="form-select">
+                        <option value="">-- Pilih --</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country->code }}">{{ $country->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 text-center">
+            <div class="card h-100 d-flex align-items-center justify-content-center">
+                <div class="card-body">
+                    <h2 class="text-muted">VS</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Negara 2</h5>
+                    <select id="country2" class="form-select">
+                        <option value="">-- Pilih --</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country->code }}">{{ $country->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col text-center">
+            <button id="compareBtn" class="btn btn-primary btn-lg">
+                <i class="fas fa-chart-bar"></i> Bandingkan
+            </button>
+        </div>
+    </div>
+
+    <div id="comparisonResult" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 id="c1Name"></h3>
+                        <img id="c1Flag" src="" alt="Flag" style="width: 60px;">
+                        <hr>
+                        <p><strong>GDP:</strong> <span id="c1Gdp"></span></p>
+                        <p><strong>Inflasi:</strong> <span id="c1Inflation"></span></p>
+                        <p><strong>Risk Score:</strong> <span id="c1Risk" class="badge bg-primary"></span></p>
+                        <p><strong>Mata Uang:</strong> <span id="c1Currency"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 id="c2Name"></h3>
+                        <img id="c2Flag" src="" alt="Flag" style="width: 60px;">
+                        <hr>
+                        <p><strong>GDP:</strong> <span id="c2Gdp"></span></p>
+                        <p><strong>Inflasi:</strong> <span id="c2Inflation"></span></p>
+                        <p><strong>Risk Score:</strong> <span id="c2Risk" class="badge bg-primary"></span></p>
+                        <p><strong>Mata Uang:</strong> <span id="c2Currency"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-chart-bar text-success"></i> Perbandingan Chart</h5>
+                        <canvas id="comparisonChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="noDataMessage" class="text-center py-5" style="display: none;">
+        <i class="fas fa-info-circle fa-3x text-muted"></i>
+        <h4 class="text-muted">Pilih dua negara untuk dibandingkan</h4>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    let comparisonChart = null;
+
+    $('#compareBtn').on('click', function() {
+        const code1 = $('#country1').val();
+        const code2 = $('#country2').val();
+
+        if (!code1 || !code2) {
+            alert('Pilih dua negara terlebih dahulu!');
+            return;
+        }
+
+        if (code1 === code2) {
+            alert('Pilih negara yang berbeda!');
+            return;
+        }
+
+        $.ajax({
+            url: `/api/countries/compare/${code1}/${code2}`,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    displayComparison(response.data);
+                } else {
+                    alert('Gagal membandingkan negara');
+                }
+            },
+            error: function() {
+                alert('Error fetching data');
+            }
+        });
+    });
+
+    function displayComparison(data) {
+        const c1 = data.country1;
+        const c2 = data.country2;
+
+        $('#c1Name').text(c1.name || '-');
+        $('#c2Name').text(c2.name || '-');
+        $('#c1Flag').attr('src', c1.flag || 'https://via.placeholder.com/60x40');
+        $('#c2Flag').attr('src', c2.flag || 'https://via.placeholder.com/60x40');
+        
+        $('#c1Gdp').text(c1.gdp ? '$' + Number(c1.gdp).toLocaleString() : 'N/A');
+        $('#c2Gdp').text(c2.gdp ? '$' + Number(c2.gdp).toLocaleString() : 'N/A');
+        $('#c1Inflation').text(c1.inflation ? c1.inflation + '%' : 'N/A');
+        $('#c2Inflation').text(c2.inflation ? c2.inflation + '%' : 'N/A');
+        $('#c1Risk').text(c1.risk_score ?? 'N/A').removeClass().addClass(c1.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
+        $('#c2Risk').text(c2.risk_score ?? 'N/A').removeClass().addClass(c2.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
+        $('#c1Currency').text(c1.currency || 'N/A');
+        $('#c2Currency').text(c2.currency || 'N/A');
+
+        updateComparisonChart(c1, c2);
+        $('#comparisonResult').show();
+        $('#noDataMessage').hide();
+    }
+
+    function updateComparisonChart(c1, c2) {
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        
+        if (comparisonChart) {
+            comparisonChart.destroy();
+        }
+
+        const labels = ['GDP (B)', 'Inflation', 'Risk'];
+        const data1 = [c1.gdp ? Number(c1.gdp) / 1000000000 : 0, c1.inflation || 0, c1.risk_score || 0];
+        const data2 = [c2.gdp ? Number(c2.gdp) / 1000000000 : 0, c2.inflation || 0, c2.risk_score || 0];
+
+        comparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: c1.name,
+                        data: data1,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: '#3498db',
+                        borderWidth: 2
+                    },
+                    {
+                        label: c2.name,
+                        data: data2,
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: '#e74c3c',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

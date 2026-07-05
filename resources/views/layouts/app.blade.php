@@ -44,7 +44,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url('/comparison') }}">
-                            <i class="fas fa-chart-bar"></i> Comparison
+                            <i class="fas fa-arrows-left-right"></i> Comparison
                         </a>
                     </li>
                 </ul>

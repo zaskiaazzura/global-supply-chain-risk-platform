@@ -62,3 +62,16 @@ Route::get('/test', function () {
         ]
     ]);
 });
+
+Route::post('/risk/recalculate-all', [RiskController::class, 'recalculateAll']);
+
+Route::get('/test-risk', function () {
+    try {
+        $country = App\Models\Country::where('code', 'IDN')->first();
+        $service = app(App\Services\RiskScoreService::class);
+        $result = $service->calculateRiskScore($country);
+        return response()->json(['success' => true, 'data' => $result]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});

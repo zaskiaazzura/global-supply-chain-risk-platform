@@ -23,8 +23,7 @@ class RiskController extends Controller
      */
     public function index()
     {
-        // Ambil semua risk score dengan relasi country
-        $riskScores = RiskScore::with('country')  // ← PASTIKAN 'country' (bukan 'countries')
+        $riskScores = RiskScore::with('country')
             ->latest('calculated_at')
             ->get()
             ->groupBy('country_id')
@@ -73,7 +72,7 @@ class RiskController extends Controller
 
     /**
      * GET /api/risk/calculate/{country}
-     * Calculate risk score for a country
+     * Calculate risk score for a single country
      */
     public function calculate($country)
     {
@@ -88,12 +87,62 @@ class RiskController extends Controller
             ], 404);
         }
 
-        $riskScore = $this->riskService->calculateRiskScore($countryModel);
+        try {
+            $riskScore = $this->riskService->calculateRiskScore($countryModel);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Risk score calculated successfully for {$countryModel->name}",
+                'data' => $riskScore
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate risk score: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * POST /api/risk/recalculate-all
+     * Recalculate risk for all countries (with chunking)
+     */
+    public function recalculateAll()
+    {
+        // Set timeout lebih lama
+        set_time_limit(600); // 10 menit
+        
+        $countries = Country::all();
+        $total = $countries->count();
+        $success = 0;
+        $errors = [];
+
+        // Proses per negara dengan delay kecil
+        foreach ($countries as $index => $country) {
+            try {
+                $this->riskService->calculateRiskScore($country);
+                $success++;
+                
+                // Log progress setiap 10 negara
+                if ($success % 10 == 0) {
+                    \Log::info("Risk calculation progress: {$success}/{$total}");
+                }
+                
+                // Delay 0.5 detik agar tidak overload API
+                usleep(500000);
+                
+            } catch (\Exception $e) {
+                $errors[] = $country->name . ': ' . $e->getMessage();
+                \Log::warning("Risk calculation failed for {$country->code}: " . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Risk score calculated successfully',
-            'data' => $riskScore
+            'message' => "Risk scores recalculated for {$success} of {$total} countries",
+            'success_count' => $success,
+            'total_count' => $total,
+            'errors' => $errors
         ]);
     }
 }
