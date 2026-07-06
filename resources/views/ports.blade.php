@@ -129,6 +129,12 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    console.log('Ports page loaded!');
+    console.log('Base URL:', window.baseUrl);
+
+    // 🔥 BASE URL UNTUK API
+    const apiBaseUrl = window.baseUrl + '/api';
+
     let map = null;
     let markersLayer = null;
     let allPorts = [];
@@ -138,14 +144,14 @@ $(document).ready(function() {
     // ========================================
     function loadCountryFilter() {
         $.ajax({
-            url: '/api/countries',
+            url: apiBaseUrl + '/countries',
             method: 'GET',
             success: function(response) {
                 if (response.success) {
                     const select = $('#countryFilter');
                     select.append('<option value="">Semua Negara</option>');
                     response.data.forEach(function(country) {
-                        select.append(`<option value="${country.code}">${country.name}</option>`);
+                        select.append('<option value="' + country.code + '">' + country.name + '</option>');
                     });
                 }
             }
@@ -175,7 +181,7 @@ $(document).ready(function() {
     // ========================================
     function loadPorts() {
         $.ajax({
-            url: '/api/ports',
+            url: apiBaseUrl + '/ports',
             method: 'GET',
             success: function(response) {
                 if (response.success) {

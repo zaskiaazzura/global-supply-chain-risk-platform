@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="base-url" content="{{ url('/') }}">
     <title>@yield('title', 'Supply Chain Risk Monitor')</title>
     
     <!-- Bootstrap 5 CSS -->
@@ -18,6 +19,11 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <script>
+        window.baseUrl = document.querySelector('meta[name="base-url"]').getAttribute('content');
+        console.log('Base URL:', window.baseUrl);
+    </script>
+
     @stack('styles')
 </head>
 <body>

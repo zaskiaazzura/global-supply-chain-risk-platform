@@ -214,13 +214,16 @@
 <script>
 $(document).ready(function() {
     console.log('Dashboard loaded!');
+    console.log('Base URL:', window.baseUrl);
 
+    const apiBaseUrl = window.baseUrl + '/api';
+    
     // ========================================
     // 1. LOAD COUNTRY LIST
     // ========================================
     function loadCountries() {
         $.ajax({
-            url: '/api/countries',
+            url: apiBaseUrl + '/countries',
             method: 'GET',
             success: function(response) {
                 console.log('Countries loaded:', response);
@@ -263,7 +266,7 @@ $(document).ready(function() {
         $('#noDataMessage').hide();
 
         $.ajax({
-            url: '/api/countries/' + code,
+            url: apiBaseUrl + '/countries/' + code,
             method: 'GET',
             success: function(response) {
                 console.log('Country details:', response);
@@ -422,7 +425,7 @@ $(document).ready(function() {
 
     function loadCurrencyChart(code) {
         $.ajax({
-            url: '/api/currency/historical/' + code + '?days=30',
+            url: apiBaseUrl + '/currency/historical/' + code + '?days=30',
             method: 'GET',
             success: function(response) {
                 if (response.success) {
@@ -541,7 +544,7 @@ $(document).ready(function() {
     // ========================================
     function loadPorts() {
         $.ajax({
-            url: '/api/ports',
+            url: apiBaseUrl + '/ports',
             method: 'GET',
             success: function(response) {
                 if (response.success && response.data) {
@@ -575,7 +578,7 @@ $(document).ready(function() {
     function loadWeatherMarkers(code) {
         if (code) {
             $.ajax({
-                url: '/api/countries/' + code,
+                url: apiBaseUrl + '/countries/' + code,
                 method: 'GET',
                 success: function(response) {
                     if (response.success && response.data.weather) {

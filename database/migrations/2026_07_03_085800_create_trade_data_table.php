@@ -24,7 +24,10 @@ return new class extends Migration
             $table->string('quarter', 10)->nullable();
             $table->timestamps();
             
-            $table->unique(['country_id', 'partner_country_id', 'year', 'quarter']);
+            $table->unique(
+                ['country_id', 'partner_country_id', 'year', 'quarter'],
+                'trade_data_country_partner_year_qtr_unique' // 40 karakter
+            );            
             $table->index('country_id');
             $table->index('year');
         });
