@@ -26,11 +26,6 @@ return new class extends Migration
             $table->boolean('is_published')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
-            
-            $table->index('category');
-            $table->index('country_id');
-            $table->index('is_published');
-            $table->index('published_at');
         });
     }
     /**

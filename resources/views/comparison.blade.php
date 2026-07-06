@@ -124,7 +124,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: `/api/countries/compare/${code1}/${code2}`,
+            url: window.baseUrl + '/api/countries/compare/' + code1 + '/' + code2,
             method: 'GET',
             success: function(response) {
                 if (response.success) {
@@ -145,9 +145,9 @@ $(document).ready(function() {
 
         $('#c1Name').text(c1.name || '-');
         $('#c2Name').text(c2.name || '-');
-        $('#c1Flag').attr('src', c1.flag || 'https://via.placeholder.com/60x40');
-        $('#c2Flag').attr('src', c2.flag || 'https://via.placeholder.com/60x40');
-        
+        $('#c1Flag').attr('src', (c1.flag && c1.flag.startsWith('http')) ? c1.flag : 'https://placehold.co/60x40/cccccc/333333?text=' + (c1.code || ''));
+        $('#c2Flag').attr('src', (c2.flag && c2.flag.startsWith('http')) ? c2.flag : 'https://placehold.co/60x40/cccccc/333333?text=' + (c2.code || ''));
+
         $('#c1Gdp').text(c1.gdp ? '$' + Number(c1.gdp).toLocaleString() : 'N/A');
         $('#c2Gdp').text(c2.gdp ? '$' + Number(c2.gdp).toLocaleString() : 'N/A');
         $('#c1Inflation').text(c1.inflation ? c1.inflation + '%' : 'N/A');

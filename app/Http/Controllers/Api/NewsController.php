@@ -26,9 +26,9 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $request->get('q', 'logistics supply chain');
-        $max = $request->get('max', 10);
-        $country = $request->get('country');
+        $query = $request->input('q', 'logistics supply chain');
+        $max = $request->input('max', 10);
+        $country = $request->input('country');
 
         // Try from cache first
         $news = NewsCache::where('category', 'logistics')
@@ -92,8 +92,9 @@ class NewsController extends Controller
      */
     public function byCategory($category, Request $request)
     {
-        $max = $request->get('max', 10);
-        $country = $request->get('country');
+        // ✅ FIX: get() → input()
+        $max = $request->input('max', 10);
+        $country = $request->input('country');
 
         $newsData = $this->gNews->getNewsByCategory($category, $max, $country);
 
@@ -110,7 +111,8 @@ class NewsController extends Controller
      */
     public function byCountry($country, Request $request)
     {
-        $max = $request->get('max', 10);
+        // ✅ FIX: get() → input()
+        $max = $request->input('max', 10);
 
         $countryModel = Country::where('code', $country)
             ->orWhere('alpha2', $country)

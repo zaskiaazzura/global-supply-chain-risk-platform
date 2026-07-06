@@ -27,6 +27,9 @@
                         <button class="btn btn-primary" id="loadCountryBtn">
                             <i class="fas fa-eye"></i> Lihat
                         </button>
+                        <button class="btn btn-warning" id="addToWatchlist">
+                            <i class="fas fa-star"></i> Favorit
+                        </button>
                     </div>
                 </div>
             </div>
@@ -117,6 +120,39 @@
                         <div class="mt-3">
                             <small class="text-muted">Terakhir diperbarui</small>
                             <p class="small" id="riskUpdated">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Sentiment -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-newspaper text-info"></i> News Sentiment
+                        </h6>
+                        <hr>
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="badge bg-success" style="font-size: 1rem;">
+                                    <i class="fas fa-smile"></i> Positif
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsPositive">-</h3>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-danger" style="font-size: 1rem;">
+                                    <i class="fas fa-frown"></i> Negatif
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsNegative">-</h3>
+                            </div>
+                            <div>
+                                <span class="badge bg-secondary" style="font-size: 1rem;">
+                                    <i class="fas fa-meh"></i> Netral
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsNeutral">-</h3>
+                            </div>
+                            <small class="text-muted" id="newsTotal">Total berita: 0</small>
                         </div>
                     </div>
                 </div>
@@ -296,12 +332,12 @@ $(document).ready(function() {
         $('#countryCapital').text('🏛️ ' + (country.capital || '-'));
         $('#countryCurrency').text(country.currency || '-');
         
-        if (country.flag_url) {
+        if (country.flag_url && country.flag_url.startsWith('http')) {
             $('#countryFlag').attr('src', country.flag_url);
         } else {
-            $('#countryFlag').attr('src', 'https://via.placeholder.com/80x50?text=Flag');
+            // Gunakan placeholder yang aman
+            $('#countryFlag').attr('src', 'https://placehold.co/80x50/cccccc/333333?text=' + (country.code || 'Flag'));
         }
-
         // Economic data
         const gdp = economic.gdp ? '$' + Number(economic.gdp).toLocaleString() : '-';
         $('#countryGDP').text(gdp);
@@ -372,6 +408,10 @@ $(document).ready(function() {
         
         // Economic chart
         loadEconomicChart(country.code);
+
+        if (country.code) {
+            checkFavoriteStatus(country.code);
+        }
     }
 
     // ========================================
@@ -662,6 +702,107 @@ $(document).ready(function() {
     }
     setInterval(updateTime, 10000);
 
+    // ========================================
+    // 13. LOAD NEWS SENTIMENT
+    // ========================================
+    function loadSentiment(code) {
+        if (!code) return;
+
+        $.ajax({
+            url: apiBaseUrl + '/news/sentiment/' + code,
+            method: 'GET',
+            success: function(response) {
+                console.log('Sentiment:', response);
+                if (response.success) {
+                    const data = response.data;
+                    $('#newsPositive').text(data.positive + '%');
+                    $('#newsNegative').text(data.negative + '%');
+                    $('#newsNeutral').text(data.neutral + '%');
+                    $('#newsTotal').text('Total berita: ' + (data.total_articles || 0));
+                }
+            },
+            error: function() {
+                console.error('Gagal load sentimen');
+                $('#newsPositive').text('-');
+                $('#newsNegative').text('-');
+                $('#newsNeutral').text('-');
+                $('#newsTotal').text('Total berita: 0');
+            }
+        });
+    }
+
+    // ========================================
+    // TOGGLE WATCHLIST (ADD/REMOVE)
+    // ========================================
+    let isFavorite = false;
+
+    // Fungsi untuk cek status favorit
+    function checkFavoriteStatus(code) {
+        if (!code) return;
+        
+        $.ajax({
+            url: window.baseUrl + '/api/watchlist/check/' + code,
+            method: 'GET',
+            success: function(response) {
+                isFavorite = response.isFavorite || false;
+                updateFavoriteButton();
+            },
+            error: function() {
+                isFavorite = false;
+                updateFavoriteButton();
+            }
+        });
+    }
+
+    // Fungsi update tampilan tombol
+    function updateFavoriteButton() {
+        if (isFavorite) {
+            $('#addToWatchlist').html('<i class="fas fa-star"></i> Hapus Favorit');
+            $('#addToWatchlist').removeClass('btn-warning').addClass('btn-danger');
+        } else {
+            $('#addToWatchlist').html('<i class="fas fa-star"></i> Tambah Favorit');
+            $('#addToWatchlist').removeClass('btn-danger').addClass('btn-warning');
+        }
+    }
+
+    // Event handler untuk tombol favorit
+    $('#addToWatchlist').on('click', function() {
+        const code = $('#countrySelect').val();
+        if (!code) {
+            alert('Pilih negara dulu!');
+            return;
+        }
+
+        $.ajax({
+            url: window.baseUrl + '/watchlist/toggle',
+            method: 'POST',
+            data: {
+                country_code: code,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    if (response.action === 'added') {
+                        isFavorite = true;
+                        alert('✅ Ditambahkan ke favorit!');
+                    } else {
+                        isFavorite = false;
+                        alert('✅ Dihapus dari favorit!');
+                    }
+                    updateFavoriteButton();
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    alert('⚠️ Silakan login terlebih dahulu!');
+                    window.location.href = '/login';
+                } else {
+                    const msg = xhr.responseJSON?.message || 'Terjadi kesalahan';
+                    alert('❌ Gagal: ' + msg);
+                }
+            }
+        });
+    });
 });
 </script>
 @endpush

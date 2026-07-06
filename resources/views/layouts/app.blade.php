@@ -53,6 +53,11 @@
                             <i class="fas fa-arrows-left-right"></i> Comparison
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/watchlist') }}">
+                            <i class="fas fa-star text-warning"></i> Favorit
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
