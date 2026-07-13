@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.user')
 
 @section('title', 'Country Comparison')
 
@@ -92,6 +92,9 @@
                         <h5 class="card-title"><i class="fas fa-chart-bar text-success"></i> Perbandingan Chart</h5>
                         <canvas id="comparisonChart" height="150"></canvas>
                     </div>
+                    <div style="height: 300px; max-height: 300px; position: relative;">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,8 +136,9 @@ $(document).ready(function() {
                     alert('Gagal membandingkan negara');
                 }
             },
-            error: function() {
-                alert('Error fetching data');
+            error: function(xhr) {
+                console.error('Error:', xhr);
+                alert('Error fetching data: ' + (xhr.responseJSON?.error || 'Unknown error'));
             }
         });
     });

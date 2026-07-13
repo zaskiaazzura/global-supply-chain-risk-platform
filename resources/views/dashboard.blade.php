@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.user')
 
 @section('title', 'Global Supply Chain Dashboard')
 
@@ -335,8 +335,9 @@ $(document).ready(function() {
         if (country.flag_url && country.flag_url.startsWith('http')) {
             $('#countryFlag').attr('src', country.flag_url);
         } else {
-            // Gunakan placeholder yang aman
-            $('#countryFlag').attr('src', 'https://placehold.co/80x50/cccccc/333333?text=' + (country.code || 'Flag'));
+            // Pakai flagcdn.com
+            const code = country.alpha2?.toLowerCase() || country.code?.toLowerCase();
+            $('#countryFlag').attr('src', `https://flagcdn.com/48x36/${code}.png`);
         }
         // Economic data
         const gdp = economic.gdp ? '$' + Number(economic.gdp).toLocaleString() : '-';

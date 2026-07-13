@@ -38,30 +38,92 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url('/') }}">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/ports') }}">
-                            <i class="fas fa-anchor"></i> Ports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/comparison') }}">
-                            <i class="fas fa-arrows-left-right"></i> Comparison
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/watchlist') }}">
-                            <i class="fas fa-star text-warning"></i> Favorit
-                        </a>
-                    </li>
+                    @auth
+                        <!-- Menu untuk semua user yang login -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('ports') ? 'active' : '' }}" href="{{ route('ports') }}">
+                                <i class="fas fa-anchor"></i> Ports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('comparison') ? 'active' : '' }}" href="{{ route('comparison') }}">
+                                <i class="fas fa-arrows-left-right"></i> Comparison
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('watchlist') ? 'active' : '' }}" href="{{ route('watchlist') }}">
+                                <i class="fas fa-star text-warning"></i> Favorit
+                            </a>
+                        </li>
+
+                        <!-- Admin Menu (HANYA untuk admin) -->
+                        @if(auth()->user()->role === 'admin')
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-shield-alt text-danger"></i> Admin
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                        <i class="fas fa-home"></i> Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
+                                        <i class="fas fa-users"></i> Users
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.ports.index') }}">
+                                        <i class="fas fa-anchor"></i> Ports
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.articles.index') }}">
+                                        <i class="fas fa-newspaper"></i> Articles
+                                    </a></li>
+                                </ul>
+                            </li>
+                        @endif
+
+                        <!-- Logout -->
+                        <li class="nav-item">
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button class="btn btn-danger btn-sm nav-link" type="submit">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <!-- Menu untuk user belum login -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </li>
+                    @endauth
                 </ul>
             </div>
         </div>
     </nav>
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
     <!-- Main Content -->
     <main class="py-4">

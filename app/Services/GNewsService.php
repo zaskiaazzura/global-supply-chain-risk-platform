@@ -91,7 +91,7 @@ class GNewsService extends BaseService
      */
     public function getEconomicNews($country, $max = 10)
     {
-        $query = "economy inflation trade GDP {$country}";
+        $query = "economy inflation trade logistics supply chain {$country}";
         return $this->searchNews($query, $max, $country, 'business');
     }
 
@@ -144,7 +144,7 @@ class GNewsService extends BaseService
             'title' => $article['title'] ?? null,
             'description' => $article['description'] ?? null,
             'content' => $article['content'] ?? null,
-            'source' => $article['source']['name'] ?? $article['source'] ?? null,
+            'source' => $article['source']['name'] ?? $article['source'] ?? 'Unknown Source', 
             'author' => $article['author'] ?? null,
             'url' => $article['url'] ?? null,
             'image_url' => $article['image'] ?? null,

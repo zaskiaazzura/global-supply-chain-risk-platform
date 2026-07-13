@@ -1,92 +1,92 @@
-@extends('layouts.app')
+@extends('admin.layouts.admin')
 
 @section('title', 'Admin Dashboard')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h1><i class="fas fa-shield-alt text-primary"></i> Admin Dashboard</h1>
-            <p class="text-muted">Kelola data sistem supply chain risk monitor</p>
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="fas fa-shield-alt text-primary"></i> Admin Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Total Users -->
+    <div class="col-md-3">
+        <div class="stat-card blue">
+            <i class="fas fa-users icon"></i>
+            <h3>{{ $totalUsers ?? 0 }}</h3>
+            <p>Total Users</p>
         </div>
     </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <h2>{{ $totalUsers }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title">Countries</h5>
-                    <h2>{{ $totalCountries }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h5 class="card-title">Ports</h5>
-                    <h2>{{ $totalPorts }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Risk Scores</h5>
-                    <h2>{{ $totalRiskScores }}</h2>
-                </div>
-            </div>
+    <!-- Total Countries -->
+    <div class="col-md-3">
+        <div class="stat-card green">
+            <i class="fas fa-flag icon"></i>
+            <h3>{{ $totalCountries ?? 0 }}</h3>
+            <p>Countries</p>
         </div>
     </div>
+    <!-- Total Ports -->
+    <div class="col-md-3">
+        <div class="stat-card orange">
+            <i class="fas fa-anchor icon"></i>
+            <h3>{{ $totalPorts ?? 0 }}</h3>
+            <p>Ports</p>
+        </div>
+    </div>
+    <!-- Total Articles -->
+    <div class="col-md-3">
+        <div class="stat-card purple">
+            <i class="fas fa-newspaper icon"></i>
+            <h3>{{ $totalArticles ?? 0 }}</h3>
+            <p>Articles</p>
+        </div>
+    </div>
+</div>
 
-    <!-- Recent Data -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recent Users</h5>
-                </div>
-                <div class="card-body">
+<!-- Recent Users -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Users</h5>
+            </div>
+            <div class="card-body">
+                @if(isset($recentUsers) && $recentUsers->count())
                     <ul class="list-group">
-                        @forelse($recentUsers as $user)
+                        @foreach($recentUsers as $user)
                             <li class="list-group-item">
                                 {{ $user->name }} 
-                                <span class="badge bg-secondary">{{ $user->role }}</span>
+                                <span class="badge {{ $user->role === 'admin' ? 'bg-danger' : 'bg-secondary' }}">{{ $user->role }}</span>
                                 <small class="text-muted float-end">{{ $user->created_at->diffForHumans() }}</small>
                             </li>
-                        @empty
-                            <li class="list-group-item text-muted">No users yet</li>
-                        @endforelse
+                        @endforeach
                     </ul>
-                </div>
+                @else
+                    <p class="text-muted">No users yet</p>
+                @endif
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recent Ports</h5>
-                </div>
-                <div class="card-body">
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Ports</h5>
+            </div>
+            <div class="card-body">
+                @if(isset($recentPorts) && $recentPorts->count())
                     <ul class="list-group">
-                        @forelse($recentPorts as $port)
+                        @foreach($recentPorts as $port)
                             <li class="list-group-item">
                                 {{ $port->name }}
                                 <span class="badge bg-info">{{ $port->country->name ?? 'N/A' }}</span>
                                 <small class="text-muted float-end">{{ $port->created_at->diffForHumans() }}</small>
                             </li>
-                        @empty
-                            <li class="list-group-item text-muted">No ports yet</li>
-                        @endforelse
+                        @endforeach
                     </ul>
-                </div>
+                @else
+                    <p class="text-muted">No ports yet</p>
+                @endif
             </div>
         </div>
     </div>

@@ -24,6 +24,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ============================================
 // WEB ROUTES (HARUS LOGIN)
 // ============================================
+// ============================================
+// PUBLIC DASHBOARD (HARUS LOGIN)
+// ============================================
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/ports', [DashboardController::class, 'ports'])->name('ports');
@@ -35,14 +38,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
     Route::post('/watchlist/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
-    Route::delete('/watchlist/{id}', [WatchlistController::class, 'remove'])->name('watchlist.remove');
-    
+    Route::delete('/watchlist/{id}', [WatchlistController::class, 'remove'])->name('watchlist.remove');    
     // Check status favorit (via API)
     Route::get('/api/watchlist/check/{code}', [WatchlistController::class, 'check']);
 });
 
 // ============================================
-// ADMIN ROUTES (HARUS LOGIN + ADMIN)
+// ADMIN ROUTES (HARUS LOGIN + ROLE ADMIN)
 // ============================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');

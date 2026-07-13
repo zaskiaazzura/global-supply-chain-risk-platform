@@ -25,7 +25,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/')->with('success', 'Login berhasil!');
+
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
+            }
+            
+            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }
 
         return back()->withErrors([
@@ -52,12 +57,11 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user'
+            'role' => 'user' // ← DEFAULT ROLE USER
         ]);
 
         Auth::login($user);
-
-        return redirect('/')->with('success', 'Registrasi berhasil!');
+        return redirect()->route('dashboard')->with('success', 'Registrasi berhasil!');
     }
 
     // Logout

@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
+use App\Models\Country;
+use App\Models\Port;
 use Illuminate\Support\Facades\Log;
 
 class MarineTrafficService extends BaseService
@@ -255,7 +255,7 @@ class MarineTrafficService extends BaseService
      */
     public function syncPortsToDatabase()
     {
-        $ports = $this->getPorts();
+        $ports = $this->getPorts(['limit' => 500]);
         
         if (!$ports) {
             return ['success' => false, 'message' => 'Failed to fetch ports'];
@@ -265,14 +265,13 @@ class MarineTrafficService extends BaseService
         $portData = isset($ports['data']) ? $ports['data'] : $ports;
         
         foreach ($portData as $port) {
-            // Find country by code
-            $country = \App\Models\Country::where('alpha2', $port['country_code'] ?? '')->first();
+            $country = Country::where('alpha2', $port['country_code'] ?? '')
+                ->orWhere('code', $port['country_code'] ?? '')
+                ->first();
             
-            if (!$country) {
-                continue;
-            }
+            if (!$country) continue;
 
-            \App\Models\Port::updateOrCreate(
+            Port::updateOrCreate(
                 ['code' => $port['code'] ?? $port['id']],
                 [
                     'name' => $port['name'] ?? null,

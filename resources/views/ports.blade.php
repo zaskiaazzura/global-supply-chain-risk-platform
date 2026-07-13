@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.user')
 
 @section('title', 'Global Port Location Dashboard')
 

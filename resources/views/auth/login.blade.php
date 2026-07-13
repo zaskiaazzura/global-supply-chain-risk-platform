@@ -14,6 +14,9 @@
                     @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
+                    @if($errors->any())
+                        <div class="alert alert-danger">{{ $errors->first() }}</div>
+                    @endif
                     <form method="POST" action="{{ route('login.post') }}">
                         @csrf
                         <div class="mb-3">
@@ -32,7 +35,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    <p class="mt-3 text-center">Belum punya akun? <a href="/register">Register</a></p>
+                    <p class="mt-3 text-center">Belum punya akun? <a href="{{ route('register') }}">Register</a></p>
                 </div>
             </div>
         </div>
