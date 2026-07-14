@@ -78,6 +78,12 @@
                     <a class="nav-link {{ request()->routeIs('ports') ? 'active' : '' }}" href="{{ route('ports') }}">
                         <i class="fas fa-anchor"></i> Ports
                     </a>
+                    <a class="nav-link {{ request()->routeIs('currency') ? 'active' : '' }}" href="{{ route('currency') }}">
+                        <i class="fas fa-dollar-sign"></i> Currency
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('news.*') ? 'active' : '' }}" href="{{ route('news.index') }}">
+                        <i class="fas fa-newspaper"></i> Berita
+                    </a>
                     <a class="nav-link {{ request()->routeIs('comparison') ? 'active' : '' }}" href="{{ route('comparison') }}">
                         <i class="fas fa-arrows-left-right"></i> Comparison
                     </a>

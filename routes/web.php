@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\NewsController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -22,25 +23,29 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.po
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ============================================
-// WEB ROUTES (HARUS LOGIN)
-// ============================================
-// ============================================
-// PUBLIC DASHBOARD (HARUS LOGIN)
+// PUBLIC DASHBOARD & USER ROUTES (HARUS LOGIN)
 // ============================================
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Dashboard & Pages
+    Route::match(['GET', 'HEAD'], '/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/ports', [DashboardController::class, 'ports'])->name('ports');
     Route::get('/comparison', [ComparisonController::class, 'index'])->name('comparison');
     Route::get('/api/compare', [ComparisonController::class, 'compare']);
-});
-
-// Watchlist Routes
-Route::middleware('auth')->group(function () {
+    Route::get('/currency', [DashboardController::class, 'currency'])->name('currency');
+    
+    // Watchlist (Favorite Countries)
     Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
     Route::post('/watchlist/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
-    Route::delete('/watchlist/{id}', [WatchlistController::class, 'remove'])->name('watchlist.remove');    
-    // Check status favorit (via API)
+    Route::delete('/watchlist/{id}', [WatchlistController::class, 'remove'])->name('watchlist.remove');
     Route::get('/api/watchlist/check/{code}', [WatchlistController::class, 'check']);
+    
+    // News
+    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+    Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
+    
+    // Session
+    Route::post('/set-session-country', [DashboardController::class, 'setSessionCountry']);
 });
 
 // ============================================

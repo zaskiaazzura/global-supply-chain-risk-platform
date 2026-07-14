@@ -7,10 +7,11 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-arrows-left-right text-primary"></i> Country Comparison</h1>
-            <p class="text-muted">Bandingkan dua negara berdasarkan GDP, Inflasi, Risk, Cuaca, dan Mata Uang</p>
+            <p class="text-muted">Bandingkan dua negara berdasarkan GDP, Inflasi, Risk, dan Mata Uang</p>
         </div>
     </div>
 
+    <!-- Selector -->
     <div class="row mb-4">
         <div class="col-md-5">
             <div class="card">
@@ -55,13 +56,14 @@
         </div>
     </div>
 
+    <!-- Hasil Comparison -->
     <div id="comparisonResult" style="display: none;">
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body text-center">
                         <h3 id="c1Name"></h3>
-                        <img id="c1Flag" src="" alt="Flag" style="width: 60px;">
+                        <span class="badge bg-secondary" style="font-size: 1.2rem;" id="c1Code"></span>
                         <hr>
                         <p><strong>GDP:</strong> <span id="c1Gdp"></span></p>
                         <p><strong>Inflasi:</strong> <span id="c1Inflation"></span></p>
@@ -74,7 +76,7 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <h3 id="c2Name"></h3>
-                        <img id="c2Flag" src="" alt="Flag" style="width: 60px;">
+                        <span class="badge bg-secondary" style="font-size: 1.2rem;" id="c2Code"></span>
                         <hr>
                         <p><strong>GDP:</strong> <span id="c2Gdp"></span></p>
                         <p><strong>Inflasi:</strong> <span id="c2Inflation"></span></p>
@@ -85,15 +87,15 @@
             </div>
         </div>
 
+        <!-- CHART -->
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-chart-bar text-success"></i> Perbandingan Chart</h5>
-                        <canvas id="comparisonChart" height="150"></canvas>
-                    </div>
-                    <div style="height: 300px; max-height: 300px; position: relative;">
-                        <canvas id="comparisonChart"></canvas>
+                        <div style="height: 300px; max-height: 300px; position: relative;">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,6 +110,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 $(document).ready(function() {
     let comparisonChart = null;
@@ -149,8 +152,10 @@ $(document).ready(function() {
 
         $('#c1Name').text(c1.name || '-');
         $('#c2Name').text(c2.name || '-');
-        $('#c1Flag').attr('src', (c1.flag && c1.flag.startsWith('http')) ? c1.flag : 'https://placehold.co/60x40/cccccc/333333?text=' + (c1.code || ''));
-        $('#c2Flag').attr('src', (c2.flag && c2.flag.startsWith('http')) ? c2.flag : 'https://placehold.co/60x40/cccccc/333333?text=' + (c2.code || ''));
+        
+        // ✅ TAMPILKAN KODE NEGARA (tanpa bendera)
+        $('#c1Code').text(c1.code || '-');
+        $('#c2Code').text(c2.code || '-');
 
         $('#c1Gdp').text(c1.gdp ? '$' + Number(c1.gdp).toLocaleString() : 'N/A');
         $('#c2Gdp').text(c2.gdp ? '$' + Number(c2.gdp).toLocaleString() : 'N/A');
@@ -173,9 +178,29 @@ $(document).ready(function() {
             comparisonChart.destroy();
         }
 
-        const labels = ['GDP (B)', 'Inflation', 'Risk'];
-        const data1 = [c1.gdp ? Number(c1.gdp) / 1000000000 : 0, c1.inflation || 0, c1.risk_score || 0];
-        const data2 = [c2.gdp ? Number(c2.gdp) / 1000000000 : 0, c2.inflation || 0, c2.risk_score || 0];
+        const labels = ['GDP (B)', 'Inflation (%)', 'Risk Score'];
+        
+        const gdp1 = c1.gdp ? Number(c1.gdp) / 1000000000 : 0;
+        const gdp2 = c2.gdp ? Number(c2.gdp) / 1000000000 : 0;
+        const inf1 = c1.inflation || 0;
+        const inf2 = c2.inflation || 0;
+        const risk1 = c1.risk_score || 0;
+        const risk2 = c2.risk_score || 0;
+
+        const maxGdp = Math.max(gdp1, gdp2, 1);
+        const maxInf = Math.max(inf1, inf2, 1);
+        const maxRisk = Math.max(risk1, risk2, 1);
+
+        const data1 = [
+            (gdp1 / maxGdp) * 100,
+            (inf1 / maxInf) * 100,
+            (risk1 / maxRisk) * 100
+        ];
+        const data2 = [
+            (gdp2 / maxGdp) * 100,
+            (inf2 / maxInf) * 100,
+            (risk2 / maxRisk) * 100
+        ];
 
         comparisonChart = new Chart(ctx, {
             type: 'bar',
@@ -204,11 +229,35 @@ $(document).ready(function() {
                 plugins: {
                     legend: {
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                let realValue;
+                                if (context.dataIndex === 0) {
+                                    realValue = context.dataset.data === data1 ? gdp1 : gdp2;
+                                    return label + ': $' + realValue.toFixed(2) + 'B';
+                                } else if (context.dataIndex === 1) {
+                                    realValue = context.dataset.data === data1 ? inf1 : inf2;
+                                    return label + ': ' + realValue.toFixed(2) + '%';
+                                } else {
+                                    realValue = context.dataset.data === data1 ? risk1 : risk2;
+                                    return label + ': ' + realValue.toFixed(2);
+                                }
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
                     }
                 }
             }

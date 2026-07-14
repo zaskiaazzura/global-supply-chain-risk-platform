@@ -65,9 +65,16 @@ class SentimentAnalysisService
     /**
      * Analyze sentiment of text
      */
-    public function analyzeText($text, $positiveWords, $negativeWords)
+    public function analyzeText($text)
     {
-        $words = str_word_count(strtolower($text), 1);
+        // Load words dari database atau fallback
+        $positiveWords = PositiveWord::pluck('word')->toArray();
+        $negativeWords = NegativeWord::pluck('word')->toArray();
+
+        // Bersihkan teks
+        $text = strtolower($text);
+        $text = preg_replace('/[^a-zA-Z\s]/', '', $text);
+        $words = str_word_count($text, 1);
         
         $positive = 0;
         $negative = 0;

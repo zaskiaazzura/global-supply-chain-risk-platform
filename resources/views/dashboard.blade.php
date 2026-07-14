@@ -14,33 +14,39 @@
 
     <!-- Country Selector -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-search"></i> Pilih Negara
-                    </h5>
-                    <div class="input-group">
-                        <select id="countrySelect" class="form-select form-select-lg">
-                            <option value="">-- Pilih Negara --</option>
-                        </select>
-                        <button class="btn btn-primary" id="loadCountryBtn">
-                            <i class="fas fa-eye"></i> Lihat
-                        </button>
-                        <button class="btn btn-warning" id="addToWatchlist">
-                            <i class="fas fa-star"></i> Favorit
-                        </button>
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-search"></i> Pilih Negara
+                            </h5>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <select id="countrySelect" class="form-select form-select-lg">
+                                    <option value="">-- Pilih Negara --</option>
+                                </select>
+                                <button class="btn btn-primary" id="loadCountryBtn">
+                                    <i class="fas fa-eye"></i> Lihat
+                                </button>
+                                <button class="btn btn-warning" id="addToWatchlist">
+                                    <i class="fas fa-star"></i> Favorit
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">
                         <i class="fas fa-sync"></i> Auto Update
                     </h5>
-                    <p class="text-muted">Data diperbarui setiap 5 menit</p>
+                    <p class="text-muted small">Data diperbarui setiap 5 menit</p>
                     <span class="badge bg-success" id="lastUpdate">
                         <i class="fas fa-clock"></i> 
                         <span id="updateTime">{{ now()->format('H:i:s') }}</span>
@@ -55,9 +61,9 @@
         <div class="row mb-4">
             <!-- Flag & Name -->
             <div class="col-md-3">
-                <div class="card text-center">
+                <div class="card text-center h-100">
                     <div class="card-body">
-                        <img id="countryFlag" src="" alt="Flag" style="width: 80px; height: auto;" class="mb-2">
+                        <img id="countryFlag" src="" alt="Flag" style="width: 80px; height: auto;" class="mb-2 rounded">
                         <h3 id="countryName" class="mb-0"></h3>
                         <p class="text-muted" id="countryCapital"></p>
                         <p><span class="badge bg-primary" id="countryCurrency"></span></p>
@@ -69,19 +75,19 @@
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-chart-line text-success"></i> Ekonomi</h6>
+                        <h6 class="card-title text-success"><i class="fas fa-chart-line"></i> Ekonomi</h6>
                         <hr>
                         <div class="mb-2">
                             <small class="text-muted">GDP</small>
-                            <p class="h5" id="countryGDP">-</p>
+                            <p class="h5 mb-0" id="countryGDP">-</p>
                         </div>
                         <div class="mb-2">
                             <small class="text-muted">Inflasi</small>
-                            <p class="h5" id="countryInflation">-</p>
+                            <p class="h5 mb-0" id="countryInflation">-</p>
                         </div>
                         <div>
                             <small class="text-muted">Populasi</small>
-                            <p class="h5" id="countryPopulation">-</p>
+                            <p class="h5 mb-0" id="countryPopulation">-</p>
                         </div>
                     </div>
                 </div>
@@ -91,19 +97,19 @@
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-cloud-sun text-warning"></i> Cuaca</h6>
+                        <h6 class="card-title text-warning"><i class="fas fa-cloud-sun"></i> Cuaca</h6>
                         <hr>
                         <div class="mb-2">
                             <small class="text-muted">Suhu</small>
-                            <p class="h5" id="weatherTemp">-</p>
+                            <p class="h5 mb-0" id="weatherTemp">-</p>
                         </div>
                         <div class="mb-2">
                             <small class="text-muted">Angin</small>
-                            <p class="h5" id="weatherWind">-</p>
+                            <p class="h5 mb-0" id="weatherWind">-</p>
                         </div>
                         <div>
                             <small class="text-muted">Kondisi</small>
-                            <p class="h5" id="weatherCondition">-</p>
+                            <p class="h5 mb-0" id="weatherCondition">-</p>
                         </div>
                     </div>
                 </div>
@@ -113,55 +119,22 @@
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body text-center">
-                        <h6 class="card-title"><i class="fas fa-shield-alt text-danger"></i> Risk Score</h6>
+                        <h6 class="card-title text-danger"><i class="fas fa-shield-alt"></i> Risk Score</h6>
                         <hr>
                         <div class="display-4" id="riskScore">-</div>
                         <span class="badge" id="riskLevel">-</span>
                         <div class="mt-3">
                             <small class="text-muted">Terakhir diperbarui</small>
-                            <p class="small" id="riskUpdated">-</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- News Sentiment -->
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            <i class="fas fa-newspaper text-info"></i> News Sentiment
-                        </h6>
-                        <hr>
-                        <div class="text-center">
-                            <div class="mb-2">
-                                <span class="badge bg-success" style="font-size: 1rem;">
-                                    <i class="fas fa-smile"></i> Positif
-                                </span>
-                                <h3 class="d-inline-block ms-2" id="newsPositive">-</h3>
-                            </div>
-                            <div class="mb-2">
-                                <span class="badge bg-danger" style="font-size: 1rem;">
-                                    <i class="fas fa-frown"></i> Negatif
-                                </span>
-                                <h3 class="d-inline-block ms-2" id="newsNegative">-</h3>
-                            </div>
-                            <div>
-                                <span class="badge bg-secondary" style="font-size: 1rem;">
-                                    <i class="fas fa-meh"></i> Netral
-                                </span>
-                                <h3 class="d-inline-block ms-2" id="newsNeutral">-</h3>
-                            </div>
-                            <small class="text-muted" id="newsTotal">Total berita: 0</small>
+                            <p class="small mb-0" id="riskUpdated">-</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Risk Breakdown -->
+        <!-- Risk Breakdown & News -->
         <div class="row mb-4">
-            <div class="col-md-12">
+            <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
@@ -173,31 +146,87 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Currency Trend Chart -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-chart-line text-primary"></i> Currency Trend
-                    </h5>
-                    <div style="height: 200px; max-height: 200px;">
-                        <canvas id="currencyChart"></canvas>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-newspaper text-primary"></i> Latest News
+                            <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-primary float-end">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </h5>
+                        <hr>
+                        <div id="newsList" style="max-height: 250px; overflow-y: auto;">
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-chart-area text-success"></i> GDP & Inflation Trend
-                    </h5>
-                    <div style="height: 200px; max-height: 200px;">
-                        <canvas id="economicChart"></canvas>
+
+        <!-- News Sentiment -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-newspaper text-info"></i> News Sentiment
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <span class="badge bg-success" style="font-size: 1.2rem;">
+                                    <i class="fas fa-smile"></i> Positif
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsPositive">-</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="badge bg-danger" style="font-size: 1.2rem;">
+                                    <i class="fas fa-frown"></i> Negatif
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsNegative">-</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="badge bg-secondary" style="font-size: 1.2rem;">
+                                    <i class="fas fa-meh"></i> Netral
+                                </span>
+                                <h3 class="d-inline-block ms-2" id="newsNeutral">-</h3>
+                            </div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <small class="text-muted" id="newsTotal">Total berita: 0</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Currency & GDP Trends -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line text-primary"></i> Currency Trend
+                        </h5>
+                        <div style="height: 200px; max-height: 200px;">
+                            <canvas id="currencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-area text-success"></i> GDP & Inflation Trend
+                        </h5>
+                        <div style="height: 200px; max-height: 200px;">
+                            <canvas id="economicChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -205,9 +234,10 @@
     </div>
 
     <!-- No Data Message -->
-    <div id="noDataMessage" class="text-center py-5" style="display: none;">
+    <div id="noDataMessage" class="text-center py-5">
         <i class="fas fa-info-circle fa-3x text-muted"></i>
         <h4 class="text-muted">Pilih negara untuk melihat data</h4>
+        <p class="text-muted">Gunakan dropdown di atas untuk memilih negara yang ingin dipantau</p>
     </div>
 
     <!-- Map Section -->
@@ -229,9 +259,15 @@
 @push('styles')
 <style>
     #map { height: 500px; border-radius: 8px; }
-    .display-4 { font-size: 3rem; font-weight: 700; }
-    .card { box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s; }
-    .card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .display-4 { font-size: 2.5rem; font-weight: 700; }
+    .card { 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .card:hover { 
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12); 
+    }
     .risk-low { background-color: #28a745 !important; color: white !important; }
     .risk-medium { background-color: #ffc107 !important; color: black !important; }
     .risk-high { background-color: #fd7e14 !important; color: white !important; }
@@ -239,6 +275,21 @@
     .badge { font-size: 0.9rem; padding: 0.5rem 1rem; }
     .port-marker { cursor: pointer; }
     .weather-marker { cursor: pointer; }
+    .news-item-sm { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    .news-item-sm:last-child { border-bottom: none; }
+    .news-item-sm .news-title { 
+        font-size: 0.85rem; 
+        font-weight: 500; 
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .news-item-sm .news-source { font-size: 0.7rem; color: #6c757d; }
+    #newsList::-webkit-scrollbar { width: 4px; }
+    #newsList::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    #newsList::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+    #newsList::-webkit-scrollbar-thumb:hover { background: #555; }
 </style>
 @endpush
 
@@ -335,10 +386,10 @@ $(document).ready(function() {
         if (country.flag_url && country.flag_url.startsWith('http')) {
             $('#countryFlag').attr('src', country.flag_url);
         } else {
-            // Pakai flagcdn.com
             const code = country.alpha2?.toLowerCase() || country.code?.toLowerCase();
             $('#countryFlag').attr('src', `https://flagcdn.com/48x36/${code}.png`);
         }
+        
         // Economic data
         const gdp = economic.gdp ? '$' + Number(economic.gdp).toLocaleString() : '-';
         $('#countryGDP').text(gdp);
@@ -410,8 +461,30 @@ $(document).ready(function() {
         // Economic chart
         loadEconomicChart(country.code);
 
+        // Load sentiment
         if (country.code) {
+            loadSentiment(country.code);
             checkFavoriteStatus(country.code);
+            loadNews(country.code);
+        }
+
+        // Save session
+        if (country.code) {
+            $.ajax({
+                url: window.baseUrl + '/set-session-country',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    country_code: country.code,
+                    currency: country.currency || 'IDR'
+                },
+                success: function(response) {
+                    console.log('Country saved to session:', response);
+                },
+                error: function() {
+                    console.log('Failed to save country to session');
+                }
+            });
         }
     }
 
@@ -713,31 +786,76 @@ $(document).ready(function() {
             url: apiBaseUrl + '/news/sentiment/' + code,
             method: 'GET',
             success: function(response) {
-                console.log('Sentiment:', response);
+                console.log('Sentiment response:', response);
                 if (response.success) {
                     const data = response.data;
                     $('#newsPositive').text(data.positive + '%');
                     $('#newsNegative').text(data.negative + '%');
                     $('#newsNeutral').text(data.neutral + '%');
                     $('#newsTotal').text('Total berita: ' + (data.total_articles || 0));
+                } else {
+                    console.error('Sentiment API error:', response);
                 }
             },
-            error: function() {
-                console.error('Gagal load sentimen');
-                $('#newsPositive').text('-');
-                $('#newsNegative').text('-');
-                $('#newsNeutral').text('-');
-                $('#newsTotal').text('Total berita: 0');
+            error: function(xhr) {
+                console.error('Ajax error:', xhr);
             }
         });
     }
 
     // ========================================
-    // TOGGLE WATCHLIST (ADD/REMOVE)
+    // 14. LOAD NEWS
+    // ========================================
+    function loadNews(countryCode) {
+        if (!countryCode) {
+            $('#newsList').html('<p class="text-muted text-center small">Pilih negara untuk melihat berita</p>');
+            return;
+        }
+
+        $.ajax({
+            url: apiBaseUrl + '/news/country/' + countryCode,
+            method: 'GET',
+            success: function(response) {
+                if (response.success && response.data && response.data.length > 0) {
+                    let html = '';
+                    const articles = response.data.slice(0, 5);
+                    
+                    articles.forEach(function(article) {
+                        const title = article.title || 'No title';
+                        const source = article.source || 'Unknown';
+                        const url = article.url || '#';
+                        const sentiment = article.sentiment || 'neutral';
+                        const sentimentBadge = sentiment === 'positive' ? 'success' : (sentiment === 'negative' ? 'danger' : 'secondary');
+                        
+                        html += `
+                            <div class="news-item-sm">
+                                <a href="${url}" target="_blank" class="text-decoration-none text-dark news-title">
+                                    ${title.length > 60 ? title.substring(0, 60) + '...' : title}
+                                </a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="news-source">${source}</span>
+                                    <span class="badge bg-${sentimentBadge} rounded-pill" style="font-size: 0.6rem;">${sentiment}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    $('#newsList').html(html);
+                } else {
+                    $('#newsList').html('<p class="text-muted text-center small">Tidak ada berita untuk negara ini</p>');
+                }
+            },
+            error: function() {
+                $('#newsList').html('<p class="text-danger text-center small">Gagal memuat berita</p>');
+            }
+        });
+    }
+
+    // ========================================
+    // 15. TOGGLE WATCHLIST (ADD/REMOVE)
     // ========================================
     let isFavorite = false;
 
-    // Fungsi untuk cek status favorit
     function checkFavoriteStatus(code) {
         if (!code) return;
         
@@ -755,7 +873,6 @@ $(document).ready(function() {
         });
     }
 
-    // Fungsi update tampilan tombol
     function updateFavoriteButton() {
         if (isFavorite) {
             $('#addToWatchlist').html('<i class="fas fa-star"></i> Hapus Favorit');
@@ -766,7 +883,6 @@ $(document).ready(function() {
         }
     }
 
-    // Event handler untuk tombol favorit
     $('#addToWatchlist').on('click', function() {
         const code = $('#countrySelect').val();
         if (!code) {

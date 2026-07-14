@@ -155,41 +155,36 @@ class GNewsService extends BaseService
     }
 
     /**
-     * Get dummy news (fallback)
+     * Get global logistics news (1 request untuk semua negara)
      */
-    private function getDummyNews()
+    public function getGlobalLogisticsNews($max = 150)
     {
-        return [
-            [
-                'title' => 'Global Supply Chain Faces New Challenges in 2024',
-                'description' => 'Supply chain disruptions continue to impact global trade as companies adapt to new challenges.',
-                'content' => 'The global supply chain is facing unprecedented challenges in 2024...',
-                'source' => 'Supply Chain News',
-                'author' => 'John Doe',
-                'url' => 'https://example.com/news/1',
-                'image' => 'https://example.com/images/1.jpg',
-                'publishedAt' => now()->toISOString()
-            ],
-            [
-                'title' => 'Port Congestion Eases as Trade Volumes Recover',
-                'description' => 'Major ports around the world are seeing reduced congestion as trade volumes stabilize.',
-                'content' => 'After months of disruption, major ports are reporting improved conditions...',
-                'source' => 'Trade Magazine',
-                'author' => 'Jane Smith',
-                'url' => 'https://example.com/news/2',
-                'image' => 'https://example.com/images/2.jpg',
-                'publishedAt' => now()->subHours(2)->toISOString()
-            ],
-            [
-                'title' => 'Digital Transformation in Logistics Industry',
-                'description' => 'Technology adoption is reshaping the logistics industry with AI and automation.',
-                'content' => 'The logistics industry is undergoing a digital transformation...',
-                'source' => 'Tech Daily',
-                'author' => 'Alex Johnson',
-                'url' => 'https://example.com/news/3',
-                'image' => 'https://example.com/images/3.jpg',
-                'publishedAt' => now()->subHours(4)->toISOString()
-            ]
+        $queries = [
+            'supply chain logistics',
+            'trade shipping economy',
+            'port congestion freight',
+            'logistics industry transport'
         ];
+        
+        $allArticles = [];
+        
+        foreach ($queries as $query) {
+            $news = $this->searchNews($query, $max, null);
+            if ($news && count($news) > 0) {
+                $allArticles = array_merge($allArticles, $news);
+            }
+        }
+        
+        // Hapus duplikat berdasarkan title
+        $unique = [];
+        $titles = [];
+        foreach ($allArticles as $article) {
+            if (!in_array($article['title'], $titles)) {
+                $titles[] = $article['title'];
+                $unique[] = $article;
+            }
+        }
+        
+        return $unique;
     }
 }
