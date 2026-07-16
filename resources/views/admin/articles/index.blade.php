@@ -23,13 +23,15 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
                         <tr>
                             <th>Title</th>
                             <th>Category</th>
                             <th>Author</th>
+                            <th>Source</th>
                             <th>Country</th>
+                            <th>Sentiment</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -37,10 +39,34 @@
                     <tbody>
                         @forelse($articles as $article)
                             <tr>
-                                <td>{{ $article->title }}</td>
-                                <td><span class="badge bg-info">{{ $article->category }}</span></td>
+                                <td>
+                                    <strong>{{ Str::limit($article->title, 50) }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ $article->category }}</span>
+                                </td>
                                 <td>{{ $article->author }}</td>
+                                <td>
+                                    @if($article->source)
+                                        <span class="badge bg-secondary">{{ Str::limit($article->source, 20) }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td>{{ $article->country->name ?? 'Global' }}</td>
+                                <td>
+                                    @if($article->sentiment)
+                                        <span class="badge bg-{{ $article->sentiment_badge }}">
+                                            <i class="fas {{ $article->sentiment === 'positive' ? 'fa-smile' : ($article->sentiment === 'negative' ? 'fa-frown' : 'fa-meh') }}"></i>
+                                            {{ $article->sentiment_label }}
+                                            @if($article->sentiment_score !== null)
+                                                <small>({{ number_format($article->sentiment_score * 100, 0) }}%)</small>
+                                            @endif
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">N/A</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="badge {{ $article->is_published ? 'bg-success' : 'bg-secondary' }}">
                                         {{ $article->is_published ? 'Published' : 'Draft' }}
@@ -51,7 +77,8 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('admin.articles.destroy', $article) }}" method="POST" class="d-inline">
-                                        @csrf @method('DELETE')
+                                        @csrf
+                                        @method('DELETE')
                                         <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus artikel ini?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -59,12 +86,26 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center text-muted">No articles found</td></tr>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Tidak ada artikel</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            {{ $articles->links() }}
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <span class="text-muted small">
+                        Menampilkan {{ $articles->firstItem() ?? 0 }} - {{ $articles->lastItem() ?? 0 }} 
+                        dari {{ $articles->total() }} artikel
+                    </span>
+                </div>
+                <div>
+                    {{ $articles->onEachSide(1)->links('pagination::bootstrap-5') }}
+                </div>
+            </div>
         </div>
     </div>
 </div>

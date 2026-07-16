@@ -8,7 +8,7 @@ use App\Models\NegativeWord;
 class SentimentAnalysisService
 {
     /**
-     * Analyze sentiment of news articles
+     * Analyze sentiment of news articles collection
      */
     public function analyzeNews($news)
     {
@@ -22,7 +22,8 @@ class SentimentAnalysisService
 
         foreach ($news as $article) {
             $text = ($article['title'] ?? '') . ' ' . ($article['description'] ?? '');
-            $result = $this->analyzeText($text, $positiveWords, $negativeWords);
+            // ✅ PERBAIKI: HANYA 1 PARAMETER
+            $result = $this->analyzeText($text);
             
             $totalPositive += $result['positive'];
             $totalNegative += $result['negative'];
@@ -63,11 +64,11 @@ class SentimentAnalysisService
     }
 
     /**
-     * Analyze sentiment of text
+     * Analyze sentiment of a single text
      */
     public function analyzeText($text)
     {
-        // Load words dari database atau fallback
+        // Load words dari database
         $positiveWords = PositiveWord::pluck('word')->toArray();
         $negativeWords = NegativeWord::pluck('word')->toArray();
 
@@ -99,14 +100,40 @@ class SentimentAnalysisService
     }
 
     /**
-     * Analyze sentiment of a single article
+     * Analyze sentiment of a single article (title + description)
      */
     public function analyzeArticle($title, $description = '')
     {
-        $positiveWords = PositiveWord::pluck('word')->toArray();
-        $negativeWords = NegativeWord::pluck('word')->toArray();
-
         $text = $title . ' ' . $description;
-        return $this->analyzeText($text, $positiveWords, $negativeWords);
+        // ✅ PERBAIKI: HANYA 1 PARAMETER
+        return $this->analyzeText($text);
+    }
+
+    /**
+     * Get sentiment score (-1 to 1)
+     */
+    public function getSentimentScore($text)
+    {
+        $result = $this->analyzeText($text);
+        $total = $result['total'];
+        
+        if ($total === 0) {
+            return 0;
+        }
+
+        return ($result['positive'] - $result['negative']) / $total;
+    }
+
+    /**
+     * Get sentiment label
+     */
+    public function getSentimentLabel($score)
+    {
+        if ($score > 0.2) {
+            return 'positive';
+        } elseif ($score < -0.2) {
+            return 'negative';
+        }
+        return 'neutral';
     }
 }

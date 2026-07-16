@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use App\Models\Currency;
+
 
 class ExchangeRateService extends BaseService
 {
@@ -110,44 +113,71 @@ class ExchangeRateService extends BaseService
 
     public function getHistoricalRates($currency, $days = 30)
     {
-        // Simulate historical data
-        $currentRate = $this->getRate($currency);
-        if (!$currentRate) return null;
+        $cacheKey = "historical_rates_{$currency}_{$days}";
+        
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
 
-        $data = [];
+        // 🔥 PAKAI CURRENT RATE + VARIASI REALISTIS
+        $currentRate = $this->getRate('USD', $currency);
+        
+        if (!$currentRate || !isset($currentRate['rate'])) {
+            return null;
+        }
+
+        $baseRate = $currentRate['rate'];
+        $historicalData = [];
+        
         for ($i = $days; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $variation = (rand(-50, 50) / 1000);
-            $rate = $currentRate['rate'] * (1 + $variation);
-            
-            $data[] = [
+            $variation = (rand(-20, 20) / 1000);
+            $rate = $baseRate * (1 + $variation);
+            $historicalData[] = [
                 'date' => $date->format('Y-m-d'),
-                'rate' => round($rate, 4)
+                'rate' => round($rate, 2)
             ];
         }
-        return $data;
+
+        Cache::put($cacheKey, $historicalData, 300);
+        return $historicalData;
     }
 
     public function updateCurrencyRates()
     {
-        $rates = $this->getLatestRates('USD');
-        
-        if (!$rates) {
-            return ['success' => false, 'message' => 'Failed to fetch rates'];
-        }
+        try {
+            $rates = $this->getLatestRates('USD');
+            
+            \Log::info('Currency rates fetched', ['count' => count($rates['rates'] ?? [])]);
+            
+            if (!$rates || !isset($rates['rates'])) {
+                return ['success' => false, 'message' => 'Failed to fetch rates'];
+            }
 
-        $count = 0;
-        foreach ($rates['rates'] as $code => $rate) {
-            \App\Models\Currency::updateOrCreate(
-                ['code' => $code],
-                [
-                    'exchange_rate_to_usd' => $rate,
-                    'rate_updated_at' => now()
-                ]
-            );
-            $count++;
-        }
+            $count = 0;
+            foreach ($rates['rates'] as $code => $rate) {
+                try {
+                    \Log::info("Saving currency: {$code} -> {$rate}");
+                    
+                    Currency::updateOrCreate(
+                        ['code' => $code],
+                        [
+                            'exchange_rate_to_usd' => $rate,
+                            'rate_updated_at' => now()
+                        ]
+                    );
+                    $count++;
+                } catch (\Exception $e) {
+                    \Log::warning("Failed to save currency {$code}: " . $e->getMessage());
+                }
+            }
 
-        return ['success' => true, 'count' => $count];
+            \Log::info("Currency update completed", ['count' => $count]);
+            return ['success' => true, 'count' => $count];
+
+        } catch (\Exception $e) {
+            \Log::error("Currency update failed: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 }

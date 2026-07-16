@@ -27,7 +27,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover">
-                    <thead>
+                    <thead class="table-dark">
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
@@ -54,7 +54,8 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
-                                        @csrf @method('DELETE')
+                                        @csrf
+                                        @method('DELETE')
                                         <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus user ini?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -62,7 +63,9 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center text-muted">No users found</td></tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No users found</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>

@@ -11,30 +11,30 @@ class PortController extends Controller
 {
     public function index()
     {
-        $ports = Port::with('country')->latest()->paginate(10);
+        $ports = Port::with('country')->latest()->paginate(15);
         return view('admin.ports.index', compact('ports'));
     }
 
     public function create()
     {
-        $countries = Country::all();
+        $countries = Country::orderBy('name')->get();
         return view('admin.ports.create', compact('countries'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:150',
-            'code' => 'required|string|max:10|unique:ports',
+            'code' => 'nullable|string|max:10',
             'country_id' => 'required|exists:countries,id',
             'city' => 'nullable|string|max:100',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
             'type' => 'required|string|max:50',
             'size' => 'nullable|string|max:20',
         ]);
 
-        Port::create($validated);
+        Port::create($request->all());
 
         return redirect()->route('admin.ports.index')
             ->with('success', 'Pelabuhan berhasil ditambahkan!');
@@ -42,24 +42,24 @@ class PortController extends Controller
 
     public function edit(Port $port)
     {
-        $countries = Country::all();
+        $countries = Country::orderBy('name')->get();
         return view('admin.ports.edit', compact('port', 'countries'));
     }
 
     public function update(Request $request, Port $port)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:150',
-            'code' => 'required|string|max:10|unique:ports,code,' . $port->id,
+            'code' => 'nullable|string|max:10',
             'country_id' => 'required|exists:countries,id',
             'city' => 'nullable|string|max:100',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
             'type' => 'required|string|max:50',
             'size' => 'nullable|string|max:20',
         ]);
 
-        $port->update($validated);
+        $port->update($request->all());
 
         return redirect()->route('admin.ports.index')
             ->with('success', 'Pelabuhan berhasil diupdate!');

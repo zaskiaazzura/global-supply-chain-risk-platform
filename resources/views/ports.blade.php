@@ -33,10 +33,10 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="fas fa-filter"></i> Filter
+                        <i class="fas fa-filter"></i> Pilih Negara
                     </h5>
                     <select id="countryFilter" class="form-select">
-                        <option value="">Semua Negara</option>
+                        <option value="">-- Pilih Negara --</option>
                     </select>
                 </div>
             </div>
@@ -59,9 +59,9 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="fas fa-map-marked-alt text-danger"></i> Peta Pelabuhan Dunia
+                        <i class="fas fa-map-marked-alt text-danger"></i> Peta Pelabuhan
                     </h5>
-                    <div id="portMap" style="height: 600px; border-radius: 8px;"></div>
+                    <div id="portMap" style="height: 500px; border-radius: 8px;"></div>
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
                             </thead>
                             <tbody id="portTableBody">
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">Loading...</td>
+                                    <td colspan="6" class="text-center text-muted">Pilih negara terlebih dahulu</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -103,41 +103,25 @@
 
 @push('styles')
 <style>
-    #portMap {
-        height: 600px;
-        border-radius: 8px;
-    }
-    .port-marker {
-        cursor: pointer;
-    }
-    .port-popup {
-        min-width: 200px;
-    }
-    .port-popup h6 {
-        margin-bottom: 5px;
-    }
-    .port-popup p {
-        margin-bottom: 3px;
-        font-size: 14px;
-    }
-    .table td {
-        vertical-align: middle;
-    }
+    #portMap { height: 500px; border-radius: 8px; }
+    .port-marker { cursor: pointer; }
+    .port-popup { min-width: 200px; }
+    .port-popup h6 { margin-bottom: 5px; }
+    .port-popup p { margin-bottom: 3px; font-size: 14px; }
+    .table td { vertical-align: middle; }
 </style>
 @endpush
 
 @push('scripts')
 <script>
 $(document).ready(function() {
-    console.log('Ports page loaded!');
-    console.log('Base URL:', window.baseUrl);
-
-    // 🔥 BASE URL UNTUK API
-    const apiBaseUrl = window.baseUrl + '/api';
-
     let map = null;
     let markersLayer = null;
     let allPorts = [];
+    let currentCountry = null;
+
+    const baseUrl = window.baseUrl;
+    const apiBaseUrl = baseUrl + '/api';
 
     // ========================================
     // 1. LOAD COUNTRY FILTER
@@ -149,9 +133,9 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     const select = $('#countryFilter');
-                    select.append('<option value="">Semua Negara</option>');
+                    select.append('<option value="">-- Pilih Negara --</option>');
                     response.data.forEach(function(country) {
-                        select.append('<option value="' + country.code + '">' + country.name + '</option>');
+                        select.append('<option value="' + country.code + '">' + country.name + ' (' + country.code + ')</option>');
                     });
                 }
             }
@@ -172,16 +156,21 @@ $(document).ready(function() {
         }).addTo(map);
 
         markersLayer = L.layerGroup().addTo(map);
-        
-        loadPorts();
     }
 
     // ========================================
-    // 3. LOAD PORTS
+    // 3. LOAD PORTS BY COUNTRY
     // ========================================
-    function loadPorts() {
+    function loadPorts(countryCode) {
+        if (!countryCode) {
+            markersLayer.clearLayers();
+            $('#portTableBody').html('<tr><td colspan="6" class="text-center text-muted">Pilih negara terlebih dahulu</td></tr>');
+            $('#totalPorts').text(0);
+            return;
+        }
+
         $.ajax({
-            url: apiBaseUrl + '/ports',
+            url: apiBaseUrl + '/ports?country=' + countryCode,
             method: 'GET',
             success: function(response) {
                 if (response.success) {
@@ -203,38 +192,48 @@ $(document).ready(function() {
     function renderPorts(ports) {
         markersLayer.clearLayers();
 
+        if (ports.length === 0) {
+            return;
+        }
+
         ports.forEach(function(port) {
             if (port.latitude && port.longitude) {
-                const marker = L.marker([port.latitude, port.longitude], {
-                    icon: L.divIcon({
-                        className: 'port-marker',
-                        html: '⚓',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 30]
-                    })
-                });
+                const lat = parseFloat(port.latitude);
+                const lng = parseFloat(port.longitude);
+                
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const marker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            className: 'port-marker',
+                            html: '⚓',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 30]
+                        })
+                    });
 
-                const popupContent = `
-                    <div class="port-popup">
-                        <h6><strong>${port.name}</strong></h6>
-                        <p>📍 ${port.city || '-'}, ${port.country ? port.country.name : '-'}</p>
-                        <p>🏷️ ${port.type || '-'} | ${port.size || '-'}</p>
-                        <p>🌐 ${port.latitude}, ${port.longitude}</p>
-                        <button class="btn btn-sm btn-primary" onclick="focusPort(${port.latitude}, ${port.longitude})">
-                            <i class="fas fa-crosshairs"></i> Zoom
-                        </button>
-                    </div>
-                `;
+                    const popupContent = `
+                        <div class="port-popup">
+                            <h6><strong>${port.name}</strong></h6>
+                            <p>📍 ${port.city || '-'}, ${port.country ? port.country.name : '-'}</p>
+                            <p>🏷️ ${port.type || '-'} | ${port.size || '-'}</p>
+                            <p>🌐 ${lat.toFixed(4)}, ${lng.toFixed(4)}</p>
+                            <button class="btn btn-sm btn-primary" onclick="focusPort(${lat}, ${lng})">
+                                <i class="fas fa-crosshairs"></i> Zoom
+                            </button>
+                        </div>
+                    `;
 
-                marker.bindPopup(popupContent);
-                markersLayer.addLayer(marker);
+                    marker.bindPopup(popupContent);
+                    markersLayer.addLayer(marker);
+                }
             }
         });
 
-        // Fit map to show all markers
         if (ports.length > 0) {
             const group = L.featureGroup(markersLayer.getLayers());
-            map.fitBounds(group.getBounds().pad(0.1));
+            if (group.getLayers().length > 0) {
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
         }
     }
 
@@ -246,7 +245,7 @@ $(document).ready(function() {
         tbody.empty();
 
         if (ports.length === 0) {
-            tbody.html('<tr><td colspan="6" class="text-center text-muted">Tidak ada data</td></tr>');
+            tbody.html('<tr><td colspan="6" class="text-center text-muted">Tidak ada pelabuhan di negara ini</td></tr>');
             return;
         }
 
@@ -259,7 +258,7 @@ $(document).ready(function() {
                     <td><span class="badge bg-info">${port.type || '-'}</span></td>
                     <td><span class="badge ${port.size === 'Large' ? 'bg-success' : 'bg-warning'}">${port.size || '-'}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="focusPort(${port.latitude}, ${port.longitude})">
+                        <button class="btn btn-sm btn-outline-primary" onclick="focusPort(${parseFloat(port.latitude)}, ${parseFloat(port.longitude)})">
                             <i class="fas fa-map-pin"></i>
                         </button>
                     </td>
@@ -274,7 +273,7 @@ $(document).ready(function() {
     // ========================================
     window.focusPort = function(lat, lng) {
         if (map) {
-            map.setView([lat, lng], 10);
+            map.setView([lat, lng], 12);
         }
     };
 
@@ -285,18 +284,17 @@ $(document).ready(function() {
         const keyword = $('#portSearch').val().toLowerCase();
         const countryCode = $('#countryFilter').val();
 
+        if (!countryCode) {
+            alert('Pilih negara terlebih dahulu!');
+            return;
+        }
+
         let filtered = allPorts;
 
         if (keyword) {
             filtered = filtered.filter(function(port) {
                 return port.name.toLowerCase().includes(keyword) ||
                        (port.city && port.city.toLowerCase().includes(keyword));
-            });
-        }
-
-        if (countryCode) {
-            filtered = filtered.filter(function(port) {
-                return port.country && port.country.code === countryCode;
             });
         }
 
@@ -312,13 +310,18 @@ $(document).ready(function() {
         }
     });
 
-    // Filter change
+    // ========================================
+    // 8. EVENT: COUNTRY CHANGE
+    // ========================================
     $('#countryFilter').on('change', function() {
-        $('#searchPortBtn').click();
+        const countryCode = $(this).val();
+        currentCountry = countryCode;
+        $('#portSearch').val('');
+        loadPorts(countryCode);
     });
 
     // ========================================
-    // 8. INIT
+    // 9. INIT
     // ========================================
     loadCountryFilter();
     initMap();

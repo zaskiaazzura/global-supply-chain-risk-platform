@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PortController as AdminPortController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\WeatherController;
 
 // ============================================
 // AUTH ROUTES (TIDAK PERLU LOGIN)
@@ -56,4 +57,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('users', AdminUserController::class);
     Route::resource('ports', AdminPortController::class);
     Route::resource('articles', AdminArticleController::class);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
+    Route::get('/weather/refresh', [WeatherController::class, 'refresh'])->name('weather.refresh');
 });

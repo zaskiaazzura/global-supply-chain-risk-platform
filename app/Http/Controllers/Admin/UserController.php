@@ -22,7 +22,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
@@ -30,10 +30,10 @@ class UserController extends Controller
         ]);
 
         User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role']
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role
         ]);
 
         return redirect()->route('admin.users.index')
@@ -52,18 +52,24 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:user,admin'
         ]);
 
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role
+        ];
+
         if ($request->filled('password')) {
             $request->validate(['password' => 'min:6|confirmed']);
-            $validated['password'] = Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
         }
 
-        $user->update($validated);
+        $user->update($data);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil diupdate!');

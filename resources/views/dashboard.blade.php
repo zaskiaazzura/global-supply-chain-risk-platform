@@ -14,28 +14,22 @@
 
     <!-- Country Selector -->
     <div class="row mb-4">
-        <div class="col-md-8">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-search"></i> Pilih Negara
-                            </h5>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="input-group">
-                                <select id="countrySelect" class="form-select form-select-lg">
-                                    <option value="">-- Pilih Negara --</option>
-                                </select>
-                                <button class="btn btn-primary" id="loadCountryBtn">
-                                    <i class="fas fa-eye"></i> Lihat
-                                </button>
-                                <button class="btn btn-warning" id="addToWatchlist">
-                                    <i class="fas fa-star"></i> Favorit
-                                </button>
-                            </div>
-                        </div>
+                    <h5 class="card-title">
+                        <i class="fas fa-search"></i> Pilih Negara
+                    </h5>
+                    <div class="input-group">
+                        <select id="countrySelect" class="form-select form-select-lg">
+                            <option value="">-- Pilih Negara --</option>
+                        </select>
+                        <button class="btn btn-primary" id="loadCountryBtn">
+                            <i class="fas fa-eye"></i> Lihat
+                        </button>
+                        <button class="btn btn-warning" id="addToWatchlist">
+                            <i class="fas fa-star"></i> Favorit
+                        </button>
                     </div>
                 </div>
             </div>
@@ -327,9 +321,8 @@ $(document).ready(function() {
                         const firstCode = response.data[0].code;
                         select.val(firstCode);
                         loadCountryDetails(firstCode);
-                        markersLayer.clearLayers();
-                        loadPorts();
                         loadWeatherMarkers(firstCode);
+                        loadPortsByCountry(firstCode); // ← Load port untuk negara pertama
                     }
                 }
             },
@@ -437,7 +430,19 @@ $(document).ready(function() {
             $('#riskUpdated').text(risk.calculated_at ? new Date(risk.calculated_at).toLocaleString() : '-');
 
             // Risk breakdown chart
-            const riskFactors = risk.risk_factors || {};
+            // Parse risk_factors jika berupa string JSON
+            let riskFactors = {};
+            if (risk.risk_factors) {
+                if (typeof risk.risk_factors === 'string') {
+                    try {
+                        riskFactors = JSON.parse(risk.risk_factors);
+                    } catch (e) {
+                        riskFactors = {};
+                    }
+                } else {
+                    riskFactors = risk.risk_factors || {};
+                }
+            }
             const labels = ['Weather', 'Inflation', 'Political', 'Currency', 'Logistics'];
             const values = [
                 riskFactors.weather || 0,
@@ -446,6 +451,13 @@ $(document).ready(function() {
                 riskFactors.currency || 0,
                 riskFactors.logistics || 0
             ];
+
+            console.log('📊 Risk Breakdown Data:');
+            console.log('  Labels:', labels);
+            console.log('  Values:', values);
+            console.log('  Risk Factors Object:', riskFactors);
+            console.log('  Full Risk Data:', risk);
+
             updateRiskChart(labels, values);
         } else {
             $('#riskScore').text('-');
@@ -633,7 +645,7 @@ $(document).ready(function() {
     }
 
     // ========================================
-    // 7. INIT MAP
+    // 7. INIT MAP (TANPA CLUSTER)
     // ========================================
     let map = null;
     let markersLayer = null;
@@ -650,7 +662,7 @@ $(document).ready(function() {
         }).addTo(map);
 
         markersLayer = L.layerGroup().addTo(map);
-        loadPorts();
+        // Jangan load ports otomatis, tunggu negara dipilih
     }
 
     // ========================================
@@ -661,7 +673,11 @@ $(document).ready(function() {
             url: apiBaseUrl + '/ports',
             method: 'GET',
             success: function(response) {
+                console.log('Ports loaded:', response); // ← DEBUG
                 if (response.success && response.data) {
+                    // Hapus marker lama
+                    markersLayer.clearLayers();
+                    
                     response.data.forEach(function(port) {
                         if (port.latitude && port.longitude) {
                             const marker = L.marker([port.latitude, port.longitude], {
@@ -678,13 +694,117 @@ $(document).ready(function() {
                             markersLayer.addLayer(marker);
                         }
                     });
+                    
+                    console.log('Total markers: ' + markersLayer.getLayers().length);
                 }
             },
-            error: function() {
-                console.error('Gagal load ports');
+            error: function(xhr) {
+                console.error('Gagal load ports:', xhr);
             }
         });
     }
+
+    // ========================================
+    // 8. LOAD PORTS BERDASARKAN NEGARA (TANPA CLUSTER)
+    // ========================================
+    function loadPortsByCountry(countryCode) {
+        if (!countryCode) {
+            markersLayer.clearLayers();
+            return;
+        }
+
+        $.ajax({
+            url: apiBaseUrl + '/ports?country=' + countryCode,
+            method: 'GET',
+            success: function(response) {
+                console.log('Ports loaded for country:', response);
+                
+                markersLayer.clearLayers();
+                
+                if (response.success && response.data) {
+                    response.data.forEach(function(port) {
+                        if (port.latitude && port.longitude) {
+                            const lat = parseFloat(port.latitude);
+                            const lng = parseFloat(port.longitude);
+                            
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                const marker = L.marker([lat, lng], {
+                                    icon: L.divIcon({
+                                        className: 'port-marker',
+                                        html: '⚓',
+                                        iconSize: [30, 30],
+                                        iconAnchor: [15, 30]
+                                    })
+                                });
+                                
+                                const popupContent = '<div style="min-width: 200px;"><h6><strong>' + port.name + '</strong></h6><p class="mb-1">📍 ' + (port.city || '-') + ', ' + (port.country ? port.country.name : '-') + '</p><p class="mb-1">🏷️ ' + (port.type || '-') + ' | ' + (port.size || '-') + '</p><button class="btn btn-sm btn-primary" onclick="showCountry(\'' + (port.country ? port.country.code : '') + '\')"><i class="fas fa-eye"></i> Lihat Negara</button></div>';
+                                marker.bindPopup(popupContent);
+                                
+                                markersLayer.addLayer(marker);
+                            }
+                        }
+                    });
+                    
+                    console.log('Total markers: ' + markersLayer.getLayers().length);
+                    
+                    // Zoom ke area negara
+                    if (markersLayer.getLayers().length > 0) {
+                        const bounds = markersLayer.getBounds();
+                        if (bounds.isValid()) {
+                            map.fitBounds(bounds, { padding: [50, 50] });
+                        }
+                    }
+                }
+            },
+            error: function(xhr) {
+                console.error('Gagal load ports:', xhr);
+            }
+        });
+    }
+
+    // ========================================
+    // LOAD PORT FILTER COUNTRIES
+    // ========================================
+    function loadPortFilterCountries() {
+        $.ajax({
+            url: apiBaseUrl + '/countries',
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const select = $('#portFilterCountry');
+                    select.empty();
+                    select.append('<option value="">Semua Negara</option>');
+                    
+                    response.data.forEach(function(country) {
+                        select.append('<option value="' + country.code + '">' + country.name + ' (' + country.code + ')</option>');
+                    });
+                }
+            }
+        });
+    }
+
+    // ========================================
+    // EVENT: PILIH NEGARA
+    // ========================================
+    $('#loadCountryBtn').on('click', function() {
+        const code = $('#countrySelect').val();
+        if (code) {
+            loadCountryDetails(code);
+            loadWeatherMarkers(code);
+            loadPortsByCountry(code); // ← Load port untuk negara yang dipilih
+            markersLayer.clearLayers();
+        }
+    });
+
+    $('#countrySelect').on('change', function() {
+        const code = $(this).val();
+        if (code) {
+            loadCountryDetails(code);
+            loadWeatherMarkers(code);
+            loadPortsByCountry(code); // ← Load port untuk negara yang dipilih
+            markersLayer.clearLayers();
+        }
+    });
 
     // ========================================
     // 9. LOAD WEATHER MARKERS

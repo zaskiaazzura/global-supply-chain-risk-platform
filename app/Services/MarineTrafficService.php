@@ -96,7 +96,7 @@ class MarineTrafficService extends BaseService
     }
 
     /**
-     * Get ports list
+     * Get ports from MarineTraffic API
      */
     public function getPorts($params = [])
     {
@@ -108,7 +108,7 @@ class MarineTrafficService extends BaseService
         $queryParams = array_merge([
             'api_key' => $this->apiKey,
             'format' => 'json',
-            'limit' => 100
+            'limit' => 500, // Maksimal 500 per request
         ], $params);
 
         $response = $this->get($endpoint, $queryParams);
@@ -118,6 +118,73 @@ class MarineTrafficService extends BaseService
         }
 
         return $this->getDummyPorts();
+    }
+
+    /**
+     * Sync ALL ports to database (multiple requests)
+     */
+    public function syncPortsToDatabase()
+    {
+        $totalSaved = 0;
+        $offset = 0;
+        $limit = 500;
+        $hasMore = true;
+
+        while ($hasMore) {
+            $params = ['limit' => $limit, 'offset' => $offset];
+            $response = $this->getPorts($params);
+
+            // Jika response error atau kosong, berhenti
+            if (!$response || !isset($response['data']) || empty($response['data'])) {
+                $hasMore = false;
+                break;
+            }
+
+            $ports = $response['data'];
+            $count = 0;
+
+            foreach ($ports as $port) {
+                $country = Country::where('alpha2', $port['country_code'] ?? '')
+                    ->orWhere('code', $port['country_code'] ?? '')
+                    ->first();
+
+                if (!$country) {
+                    continue;
+                }
+
+                try {
+                    Port::updateOrCreate(
+                        ['code' => $port['code'] ?? $port['id']],
+                        [
+                            'name' => $port['name'] ?? null,
+                            'country_id' => $country->id,
+                            'city' => $port['city'] ?? null,
+                            'latitude' => $port['latitude'] ?? null,
+                            'longitude' => $port['longitude'] ?? null,
+                            'type' => $port['type'] ?? 'Sea',
+                            'size' => $port['size'] ?? 'Medium'
+                        ]
+                    );
+                    $count++;
+                } catch (\Exception $e) {
+                    // Skip jika error
+                }
+            }
+
+            $totalSaved += $count;
+
+            // Jika jumlah port yang didapat kurang dari limit, berarti sudah habis
+            if (count($ports) < $limit) {
+                $hasMore = false;
+            } else {
+                $offset += $limit;
+            }
+
+            // Sleep agar tidak kena rate limit
+            sleep(1);
+        }
+
+        return ['success' => true, 'count' => $totalSaved];
     }
 
     /**
@@ -248,44 +315,5 @@ class MarineTrafficService extends BaseService
                 'course' => 180
             ]
         ];
-    }
-
-    /**
-     * Sync ports to database
-     */
-    public function syncPortsToDatabase()
-    {
-        $ports = $this->getPorts(['limit' => 500]);
-        
-        if (!$ports) {
-            return ['success' => false, 'message' => 'Failed to fetch ports'];
-        }
-
-        $count = 0;
-        $portData = isset($ports['data']) ? $ports['data'] : $ports;
-        
-        foreach ($portData as $port) {
-            $country = Country::where('alpha2', $port['country_code'] ?? '')
-                ->orWhere('code', $port['country_code'] ?? '')
-                ->first();
-            
-            if (!$country) continue;
-
-            Port::updateOrCreate(
-                ['code' => $port['code'] ?? $port['id']],
-                [
-                    'name' => $port['name'] ?? null,
-                    'country_id' => $country->id,
-                    'city' => $port['city'] ?? null,
-                    'latitude' => $port['latitude'] ?? null,
-                    'longitude' => $port['longitude'] ?? null,
-                    'type' => $port['type'] ?? 'Sea',
-                    'size' => $port['size'] ?? 'Medium'
-                ]
-            );
-            $count++;
-        }
-
-        return ['success' => true, 'count' => $count];
     }
 }

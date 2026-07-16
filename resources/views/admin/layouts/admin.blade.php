@@ -83,6 +83,14 @@
         .stat-card.orange { background: linear-gradient(135deg, #f39c12, #e67e22); }
         .stat-card.red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
         .stat-card.purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        
+        .pagination .page-link {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.6rem !important;
+        }
+        .pagination {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>

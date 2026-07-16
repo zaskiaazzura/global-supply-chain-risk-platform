@@ -15,15 +15,18 @@ class RiskScoreService
     protected $worldBank;
     protected $sentiment;
     protected $cacheDuration = 3600; // 1 jam cache
+    protected $exchangeRate;
 
     public function __construct(
         OpenMeteoService $openMeteo,
         WorldBankService $worldBank,
-        SentimentAnalysisService $sentiment
+        SentimentAnalysisService $sentiment,
+        ExchangeRateService $exchangeRate
     ) {
         $this->openMeteo = $openMeteo;
         $this->worldBank = $worldBank;
         $this->sentiment = $sentiment;
+        $this->exchangeRate = $exchangeRate;
     }
 
     /**
@@ -188,18 +191,33 @@ class RiskScoreService
                 return 0;
             }
 
-            $volatility = 0;
-            if ($currency->weekly_change) {
-                $volatility += abs($currency->weekly_change);
-            }
-            if ($currency->monthly_change) {
-                $volatility += abs($currency->monthly_change);
+            // Ambil historical rates untuk 30 hari terakhir
+            $historical = $this->exchangeRate->getHistoricalRates($country->currency, 30);
+            
+            if (!$historical || count($historical) < 2) {
+                return 0;
             }
 
-            $risk = min($volatility * 2, 100);
+            // Hitung volatilitas dari historical rates
+            $rates = array_column($historical, 'rate');
+            $mean = array_sum($rates) / count($rates);
+            $variance = 0;
+            foreach ($rates as $rate) {
+                $variance += pow($rate - $mean, 2);
+            }
+            $variance /= count($rates);
+            $stdDev = sqrt($variance);
+            
+            // Koefisien variasi (CV) sebagai ukuran risiko
+            $cv = $mean > 0 ? ($stdDev / $mean) * 100 : 0;
+            
+            // Konversi ke skala 0-100
+            $risk = min($cv * 2, 100);
+            
             return round($risk, 2);
+            
         } catch (\Exception $e) {
-            Log::warning("Currency risk failed for {$country->code}: " . $e->getMessage());
+            \Log::warning("Currency risk failed for {$country->code}: " . $e->getMessage());
             return 0;
         }
     }
