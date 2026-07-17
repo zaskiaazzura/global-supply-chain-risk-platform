@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\RouteSimulationController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -63,3 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/weather', [WeatherController::class, 'index'])->name('weather.index');
     Route::get('/weather/refresh', [WeatherController::class, 'refresh'])->name('weather.refresh');
 });
+
+// Route Simulation
+Route::get('/route-simulation', [RouteSimulationController::class, 'index'])->name('route.simulation');
+Route::post('/api/route-simulation', [RouteSimulationController::class, 'calculate']);

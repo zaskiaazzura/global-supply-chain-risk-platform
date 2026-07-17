@@ -90,6 +90,9 @@
                     <a class="nav-link {{ request()->routeIs('comparison') ? 'active' : '' }}" href="{{ route('comparison') }}">
                         <i class="fas fa-arrows-left-right"></i> Comparison
                     </a>
+                    <a class="nav-link {{ request()->routeIs('route.simulation') ? 'active' : '' }}" href="{{ route('route.simulation') }}">
+                        <i class="fas fa-route"></i> Route Simulation
+                    </a>
                     <a class="nav-link {{ request()->routeIs('watchlist') ? 'active' : '' }}" href="{{ route('watchlist') }}">
                         <i class="fas fa-star text-warning"></i> Favorit
                     </a>                

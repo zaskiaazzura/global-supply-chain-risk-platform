@@ -28,7 +28,7 @@ class PortController extends Controller
         if ($request->has('country')) {
             $query->whereHas('country', function ($q) use ($request) {
                 $q->where('code', $request->country)
-                  ->orWhere('alpha2', $request->country);
+                ->orWhere('alpha2', $request->country);
             });
         }
 
@@ -43,15 +43,23 @@ class PortController extends Controller
         if ($request->has('search')) {
             $search = $request->search;
             $query->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('city', 'LIKE', "%{$search}%");
+                ->orWhere('city', 'LIKE', "%{$search}%");
         }
 
+        // ✅ AMBIL SEMUA, LALU FILTER 5 PER NEGARA
         $ports = $query->get();
+
+        $filteredPorts = $ports->groupBy('country_id')
+            ->map(function ($group) {
+                return $group->take(5);
+            })
+            ->flatten()
+            ->values();
 
         return response()->json([
             'success' => true,
-            'count' => $ports->count(),
-            'data' => $ports
+            'count' => $filteredPorts->count(),
+            'data' => $filteredPorts
         ]);
     }
 

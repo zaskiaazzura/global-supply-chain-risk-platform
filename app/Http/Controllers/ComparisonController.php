@@ -46,11 +46,9 @@ class ComparisonController extends Controller
                 ], 404);
             }
 
-            // Get economic data
             $eco1 = $this->worldBank->getAllIndicators($code1);
             $eco2 = $this->worldBank->getAllIndicators($code2);
 
-            // Get risk scores
             $risk1 = RiskScore::where('country_id', $country1->id)
                 ->latest('calculated_at')
                 ->first();
@@ -59,7 +57,6 @@ class ComparisonController extends Controller
                 ->latest('calculated_at')
                 ->first();
 
-            // Get weather
             $weather1 = null;
             $weather2 = null;
 
@@ -76,6 +73,44 @@ class ComparisonController extends Controller
                     $country2->longitude
                 );
             }
+
+            // ✅ PASTIKAN CURRENCY DIKIRIM
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'country1' => [
+                        'name' => $country1->name,
+                        'code' => $country1->code,
+                        'flag' => $country1->flag_url,
+                        'currency' => $country1->currency,              // ← WAJIB
+                        'currency_symbol' => $country1->currency_symbol, // ← WAJIB
+                        'gdp' => $eco1['gdp'] ?? null,
+                        'inflation' => $eco1['inflation'] ?? null,
+                        'population' => $eco1['population'] ?? null,
+                        'risk_score' => $risk1->total_risk_score ?? null,
+                        'risk_level' => $risk1->risk_level ?? 'Unknown',
+                        'weather' => $weather1['current_weather']['temperature'] ?? null,
+                ],
+                'country2' => [
+                    'name' => $country2->name,
+                    'code' => $country2->code,
+                    'flag' => $country2->flag_url,
+                    'currency' => $country2->currency,              // ← WAJIB
+                    'currency_symbol' => $country2->currency_symbol, // ← WAJIB
+                    'gdp' => $eco2['gdp'] ?? null,
+                    'inflation' => $eco2['inflation'] ?? null,
+                    'population' => $eco2['population'] ?? null,
+                    'risk_score' => $risk2->total_risk_score ?? null,
+                    'risk_level' => $risk2->risk_level ?? 'Unknown',
+                    'weather' => $weather2['current_weather']['temperature'] ?? null,
+                ],
+                'comparison' => [
+                    'gdp_difference' => ($eco1['gdp'] ?? 0) - ($eco2['gdp'] ?? 0),
+                    'inflation_difference' => ($eco1['inflation'] ?? 0) - ($eco2['inflation'] ?? 0),
+                    'population_difference' => ($eco1['population'] ?? 0) - ($eco2['population'] ?? 0)
+                ]]
+            ]);
+
         } catch (\Exception $e) {
             \Log::error('Comparison error: ' . $e->getMessage());
             return response()->json([

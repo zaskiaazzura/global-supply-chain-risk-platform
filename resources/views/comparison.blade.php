@@ -130,8 +130,12 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: window.baseUrl + '/api/countries/compare/' + code1 + '/' + code2,
+            url: window.baseUrl + '/api/compare',
             method: 'GET',
+            data: {
+                country1: code1,
+                country2: code2
+            },
             success: function(response) {
                 if (response.success) {
                     displayComparison(response.data);
@@ -147,25 +151,54 @@ $(document).ready(function() {
     });
 
     function displayComparison(data) {
-        const c1 = data.country1;
-        const c2 = data.country2;
+        const responseData = data.data ? data.data : data;
+        
+        const c1 = responseData.country1;
+        const c2 = responseData.country2;
 
+        console.log('Country 1:', c1); 
+        console.log('Country 2:', c2);
+
+        // Nama negara
         $('#c1Name').text(c1.name || '-');
         $('#c2Name').text(c2.name || '-');
         
-        // ✅ TAMPILKAN KODE NEGARA (tanpa bendera)
+        // Kode negara
         $('#c1Code').text(c1.code || '-');
         $('#c2Code').text(c2.code || '-');
 
+        // ✅ TAMPILKAN FLAG (dari flagcdn.com)
+        function getFlagUrl(flag, code) {
+            if (!flag) return 'https://via.placeholder.com/60x40?text=Flag';
+            if (flag.startsWith('http')) return flag;
+            const codeLower = code?.toLowerCase() || '';
+            return 'https://flagcdn.com/48x36/' + codeLower + '.png';
+        }
+
+        $('#c1Flag').attr('src', getFlagUrl(c1.flag, c1.code));
+        $('#c2Flag').attr('src', getFlagUrl(c2.flag, c2.code));
+
+        // GDP
         $('#c1Gdp').text(c1.gdp ? '$' + Number(c1.gdp).toLocaleString() : 'N/A');
         $('#c2Gdp').text(c2.gdp ? '$' + Number(c2.gdp).toLocaleString() : 'N/A');
+
+        // Inflasi
         $('#c1Inflation').text(c1.inflation ? c1.inflation + '%' : 'N/A');
         $('#c2Inflation').text(c2.inflation ? c2.inflation + '%' : 'N/A');
-        $('#c1Risk').text(c1.risk_score ?? 'N/A').removeClass().addClass(c1.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
-        $('#c2Risk').text(c2.risk_score ?? 'N/A').removeClass().addClass(c2.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
+
+        // Risk Score
+        $('#c1Risk').text(c1.risk_score ?? 'N/A')
+            .removeClass('badge bg-primary bg-danger')
+            .addClass(c1.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
+        $('#c2Risk').text(c2.risk_score ?? 'N/A')
+            .removeClass('badge bg-primary bg-danger')
+            .addClass(c2.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
+
+        // ✅ MATA UANG (PASTIKAN INI ADA)
         $('#c1Currency').text(c1.currency || 'N/A');
         $('#c2Currency').text(c2.currency || 'N/A');
 
+        // Chart
         updateComparisonChart(c1, c2);
         $('#comparisonResult').show();
         $('#noDataMessage').hide();
