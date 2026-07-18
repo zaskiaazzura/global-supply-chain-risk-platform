@@ -225,6 +225,7 @@ php artisan serve
 
 ## 📡 **REST API Endpoints**
 | Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
 | GET | /api/countries | Get all countries |
 | GET |	/api/countries/{code} |	Get country details |
 | GET |	/api/countries/compare/{code1}/{code2} | Compare two countries |
