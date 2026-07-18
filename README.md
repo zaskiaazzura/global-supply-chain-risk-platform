@@ -223,27 +223,6 @@ php artisan serve
 
 ---
 
-## **Relasi Antar Tabel** 
-
-users ──┬── watchlist ──┬── countries
-        └── notifications
-                │
-countries ──┬── risk_scores
-            ├── ports
-            ├── news_cache
-            ├── articles
-            ├── weather_data
-            ├── trade_data
-            └── currency
-                    │
-news_cache ──┬── articles (sync)
-             └── sentiment_analysis
-                    │
-positive_words ──┐
-negative_words ──┴── sentiment_analysis
-
----
-
 ## 📡 **REST API Endpoints**
 | Method | Endpoint | Deskripsi |
 | GET | /api/countries | Get all countries |
@@ -262,7 +241,7 @@ negative_words ──┴── sentiment_analysis
 | GET |	/api/news/sentiment/{country} |	Get sentiment analysis |
 | GET |	/api/currency |	Get currency rates |
 | GET |	/api/currency/convert |	Convert currency |
-| GET |	/api/currency/historical/{code}	Get historical rates |
+| GET |	/api/currency/historical/{code}	| Get historical rates |
 
 ---
 
