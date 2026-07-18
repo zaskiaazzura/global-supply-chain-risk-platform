@@ -20,10 +20,8 @@ class DashboardController extends Controller
         $totalArticles = Article::count();
         $totalRiskScores = RiskScore::count();
 
-        // Recent users
         $recentUsers = User::latest()->limit(5)->get();
         
-        // Recent ports
         $recentPorts = Port::with('country')->latest()->limit(5)->get();
 
         return view('admin.dashboard', compact(

@@ -9,7 +9,7 @@ class NewsCache extends Model
 {
     use HasFactory;
 
-    protected $table = 'news_cache';  // ← TAMBAHKAN INI!
+    protected $table = 'news_cache';  
 
     protected $fillable = [
         'country_id',

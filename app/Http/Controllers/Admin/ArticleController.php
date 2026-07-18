@@ -51,7 +51,6 @@ class ArticleController extends Controller
         $data['is_published'] = $request->has('is_published');
         $data['published_at'] = $request->published_at ?? now();
 
-        // 🔥 Analisis Sentimen
         $text = ($request->title ?? '') . ' ' . ($request->excerpt ?? '') . ' ' . ($request->content ?? '');
         $sentiment = $this->sentimentService->analyzeText($text);
 
@@ -97,7 +96,6 @@ class ArticleController extends Controller
         $data['slug'] = Str::slug($request->title);
         $data['is_published'] = $request->has('is_published');
 
-        // 🔥 Analisis Sentimen Ulang
         $text = ($request->title ?? '') . ' ' . ($request->excerpt ?? '') . ' ' . ($request->content ?? '');
         $sentiment = $this->sentimentService->analyzeText($text);
 

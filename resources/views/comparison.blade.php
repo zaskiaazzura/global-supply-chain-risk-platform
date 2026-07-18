@@ -167,7 +167,7 @@ $(document).ready(function() {
         $('#c1Code').text(c1.code || '-');
         $('#c2Code').text(c2.code || '-');
 
-        // ✅ TAMPILKAN FLAG (dari flagcdn.com)
+        // TAMPILKAN FLAG (dari flagcdn.com)
         function getFlagUrl(flag, code) {
             if (!flag) return 'https://via.placeholder.com/60x40?text=Flag';
             if (flag.startsWith('http')) return flag;
@@ -194,7 +194,7 @@ $(document).ready(function() {
             .removeClass('badge bg-primary bg-danger')
             .addClass(c2.risk_level === 'High' ? 'badge bg-danger' : 'badge bg-primary');
 
-        // ✅ MATA UANG (PASTIKAN INI ADA)
+        // MATA UANG
         $('#c1Currency').text(c1.currency || 'N/A');
         $('#c2Currency').text(c2.currency || 'N/A');
 

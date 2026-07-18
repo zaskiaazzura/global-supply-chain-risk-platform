@@ -55,7 +55,6 @@ class NewsController extends Controller
                 }
 
                 foreach ($newsData as $article) {
-                    // HANYA INSERT JIKA ADA countryModel
                     if ($countryModel) {
                         try {
                             NewsCache::create([
@@ -92,7 +91,6 @@ class NewsController extends Controller
      */
     public function byCategory($category, Request $request)
     {
-        // ✅ FIX: get() → input()
         $max = $request->input('max', 10);
         $country = $request->input('country');
 
@@ -111,7 +109,6 @@ class NewsController extends Controller
      */
     public function byCountry($country, Request $request)
     {
-        // ✅ FIX: get() → input()
         $max = $request->input('max', 10);
 
         $countryModel = Country::where('code', $country)
@@ -130,7 +127,6 @@ class NewsController extends Controller
             ->limit($max)
             ->get();
 
-        // Jika tidak ada di cache, fetch dari API dan simpan
         if ($news->isEmpty()) {
             $newsData = $this->gNews->getEconomicNews($country, $max);
             

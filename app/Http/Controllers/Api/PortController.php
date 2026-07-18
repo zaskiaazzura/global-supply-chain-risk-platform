@@ -46,7 +46,6 @@ class PortController extends Controller
                 ->orWhere('city', 'LIKE', "%{$search}%");
         }
 
-        // ✅ AMBIL SEMUA, LALU FILTER 5 PER NEGARA
         $ports = $query->get();
 
         $filteredPorts = $ports->groupBy('country_id')

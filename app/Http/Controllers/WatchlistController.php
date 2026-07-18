@@ -37,13 +37,11 @@ class WatchlistController extends Controller
                 ], 404);
             }
 
-            // Cek apakah sudah ada di watchlist
             $existing = Watchlist::where('user_id', Auth::id())
                 ->where('country_id', $country->id)
                 ->first();
 
             if ($existing) {
-                // Jika sudah ada, HAPUS (unfavorite)
                 $existing->delete();
                 return response()->json([
                     'success' => true,

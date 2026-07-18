@@ -36,7 +36,6 @@
                         <i class="fas fa-filter"></i> Pilih Negara
                     </h5>
                     <select id="countryFilter" class="form-select">
-                        <option value="">-- Pilih Negara --</option>
                     </select>
                 </div>
             </div>
@@ -151,7 +150,7 @@ $(document).ready(function() {
             zoom: 2
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
@@ -303,7 +302,6 @@ $(document).ready(function() {
         $('#totalPorts').text(filtered.length);
     });
 
-    // Enter key for search
     $('#portSearch').on('keypress', function(e) {
         if (e.which === 13) {
             $('#searchPortBtn').click();

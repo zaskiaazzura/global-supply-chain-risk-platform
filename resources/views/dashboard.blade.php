@@ -430,7 +430,6 @@ $(document).ready(function() {
             $('#riskUpdated').text(risk.calculated_at ? new Date(risk.calculated_at).toLocaleString() : '-');
 
             // Risk breakdown chart
-            // Parse risk_factors jika berupa string JSON
             let riskFactors = {};
             if (risk.risk_factors) {
                 if (typeof risk.risk_factors === 'string') {
@@ -657,12 +656,11 @@ $(document).ready(function() {
             worldCopyJump: true
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB'
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         markersLayer = L.layerGroup().addTo(map);
-        // Jangan load ports otomatis, tunggu negara dipilih
     }
 
     // ========================================
@@ -673,9 +671,8 @@ $(document).ready(function() {
             url: apiBaseUrl + '/ports',
             method: 'GET',
             success: function(response) {
-                console.log('Ports loaded:', response); // ← DEBUG
+                console.log('Ports loaded:', response); 
                 if (response.success && response.data) {
-                    // Hapus marker lama
                     markersLayer.clearLayers();
                     
                     response.data.forEach(function(port) {
@@ -747,9 +744,10 @@ $(document).ready(function() {
                     
                     console.log('Total markers: ' + markersLayer.getLayers().length);
                     
-                    // Zoom ke area negara
+
                     if (markersLayer.getLayers().length > 0) {
-                        const bounds = markersLayer.getBounds();
+                        const group = L.featureGroup(markersLayer.getLayers());
+                        const bounds = group.getBounds();
                         if (bounds.isValid()) {
                             map.fitBounds(bounds, { padding: [50, 50] });
                         }
@@ -791,7 +789,7 @@ $(document).ready(function() {
         if (code) {
             loadCountryDetails(code);
             loadWeatherMarkers(code);
-            loadPortsByCountry(code); // ← Load port untuk negara yang dipilih
+            loadPortsByCountry(code); 
             markersLayer.clearLayers();
         }
     });
@@ -801,7 +799,7 @@ $(document).ready(function() {
         if (code) {
             loadCountryDetails(code);
             loadWeatherMarkers(code);
-            loadPortsByCountry(code); // ← Load port untuk negara yang dipilih
+            loadPortsByCountry(code); 
             markersLayer.clearLayers();
         }
     });

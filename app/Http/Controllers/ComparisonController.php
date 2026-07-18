@@ -74,7 +74,6 @@ class ComparisonController extends Controller
                 );
             }
 
-            // ✅ PASTIKAN CURRENCY DIKIRIM
             return response()->json([
                 'success' => true,
                 'data' => [

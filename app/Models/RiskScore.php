@@ -9,7 +9,7 @@ class RiskScore extends Model
 {
     use HasFactory;
 
-    protected $table = 'risk_scores';  // ← TAMBAHKAN INI
+    protected $table = 'risk_scores';  
 
     protected $fillable = [
         'country_id',
@@ -37,7 +37,7 @@ class RiskScore extends Model
         'total_risk_score' => 'decimal:2'
     ];
 
-    // RELATIONSHIP - PASTIKAN INI ADA!
+    
     public function country()
     {
         return $this->belongsTo(Country::class);

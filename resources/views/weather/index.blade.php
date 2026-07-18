@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <!-- ✅ HANYA PENCARIAN -->
+    <!-- HANYA PENCARIAN -->
     <div class="row mb-4">
         <div class="col-md-6">
             <form method="GET" action="{{ route('weather.index') }}" class="d-flex gap-2">
@@ -145,7 +145,7 @@
         </div>
     </div>
 
-    <!-- ✅ PAGINATION (NEXT/PREVIOUS) -->
+    <!-- PAGINATION (NEXT/PREVIOUS) -->
     <div class="d-flex justify-content-between align-items-center mt-3">
         <div>
             <span class="text-muted small">

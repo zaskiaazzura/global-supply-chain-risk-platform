@@ -23,7 +23,6 @@ class EconomicIndicator extends Model
         'value' => 'decimal:4',
     ];
 
-    // Relationship
     public function country()
     {
         return $this->belongsTo(Country::class);

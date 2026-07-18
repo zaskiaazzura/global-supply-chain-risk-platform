@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\CurrencyController;
 
 // ==================== 1. COUNTRIES ====================
 Route::prefix('countries')->group(function () {
-    Route::get('/', [CountryController::class, 'index']); // ✅ Prefix countries, jadi /api/countries
+    Route::get('/', [CountryController::class, 'index']); 
     Route::get('/{code}', [CountryController::class, 'show']);
     Route::get('/compare/{code1}/{code2}', [CountryController::class, 'compare']);
     Route::get('/sync', [CountryController::class, 'syncFromAPI']);
@@ -17,14 +17,14 @@ Route::prefix('countries')->group(function () {
 
 // ==================== 2. RISK ====================
 Route::prefix('risk')->group(function () {
-    Route::get('/', [RiskController::class, 'index']); // ✅ Prefix risk, jadi /api/risk
+    Route::get('/', [RiskController::class, 'index']); 
     Route::get('/{country}', [RiskController::class, 'show']);
     Route::get('/calculate/{country}', [RiskController::class, 'calculate']);
 });
 
 // ==================== 3. PORTS ====================
 Route::prefix('ports')->group(function () {
-    Route::get('/', [PortController::class, 'index']); // ✅ Prefix ports, jadi /api/ports
+    Route::get('/', [PortController::class, 'index']); 
     Route::get('/search', [PortController::class, 'search']);
     Route::get('/country/{countryCode}', [PortController::class, 'byCountry']);
     Route::get('/{id}', [PortController::class, 'show']);
@@ -33,7 +33,7 @@ Route::prefix('ports')->group(function () {
 
 // ==================== 4. NEWS ====================
 Route::prefix('news')->group(function () {
-    Route::get('/', [NewsController::class, 'index']); // ✅ Prefix news, jadi /api/news
+    Route::get('/', [NewsController::class, 'index']); 
     Route::get('/category/{category}', [NewsController::class, 'byCategory']);
     Route::get('/country/{country}', [NewsController::class, 'byCountry']);
     Route::get('/sentiment/{country}', [NewsController::class, 'sentimentAnalysis']);
@@ -41,7 +41,7 @@ Route::prefix('news')->group(function () {
 
 // ==================== 5. CURRENCY ====================
 Route::prefix('currency')->group(function () {
-    Route::get('/', [CurrencyController::class, 'index']); // ✅ Prefix currency, jadi /api/currency
+    Route::get('/', [CurrencyController::class, 'index']); 
     Route::get('/convert', [CurrencyController::class, 'convert']);
     Route::get('/historical/{code}', [CurrencyController::class, 'historical']);
     Route::get('/{code}', [CurrencyController::class, 'show']);

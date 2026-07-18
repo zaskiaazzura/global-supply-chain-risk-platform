@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-dollar-sign text-success"></i> Currency Impact Dashboard</h1>
@@ -11,7 +12,7 @@
         </div>
     </div>
 
-    <!-- ✅ TAMBAHKAN: PENCARIAN NEGARA -->
+    <!-- Pilih Negara -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card">
@@ -32,47 +33,30 @@
         </div>
         <div class="col-md-6">
             <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-info-circle text-info"></i> Mata Uang Aktif
-                    </h5>
-                    <h3 id="activeCurrencyDisplay">IDR</h3>
-                    <p class="text-muted" id="activeCountryDisplay">Indonesia</p>
+                <div class="card-body d-flex align-items-center">
+                    <div>
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle text-info"></i> Mata Uang Aktif
+                        </h5>
+                        <h3 id="activeCurrencyDisplay" class="mb-0">-</h3>
+                        <p class="text-muted mb-0" id="activeCountryDisplay">Pilih negara</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Chart -->
     <div class="row">
-        <!-- Chart -->
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="fas fa-chart-line text-primary"></i> 
-                        <span id="chartTitle">IDR/USD</span> Trend (30 Hari)
+                        <span id="chartTitle">Pilih negara untuk melihat chart</span>
                     </h5>
-                    <div style="height: 350px; max-height: 350px; position: relative;">
+                    <div style="height: 400px; max-height: 400px; position: relative;">
                         <canvas id="currencyChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Current Rates -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-coins text-warning"></i> Current Rates
-                    </h5>
-                    <hr>
-                    <div id="currencyRates">
-                        <div class="text-center py-3">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -101,10 +85,11 @@
 @push('styles')
 <style>
     #currencyChart {
-        max-height: 350px;
+        max-height: 400px;
     }
-    .bg-primary-light {
-        background-color: #e8f4fd;
+    .card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 </style>
 @endpush
@@ -133,14 +118,16 @@ $(document).ready(function() {
                     select.append('<option value="">-- Pilih Negara --</option>');
                     
                     response.data.forEach(function(country) {
-                        select.append('<option value="' + country.code + '" data-currency="' + (country.currency || 'IDR') + '">' + country.name + ' (' + country.currency + ')</option>');
+                        select.append('<option value="' + country.code + '" data-currency="' + (country.currency || 'IDR') + '">' + country.name + ' (' + (country.currency || 'IDR') + ')</option>');
                     });
 
-                    // Auto-load default country (dari session atau parameter)
+                    // Cek parameter URL
                     const urlParams = new URLSearchParams(window.location.search);
-                    const defaultCountry = urlParams.get('country') || 'IDN';
-                    select.val(defaultCountry);
-                    loadCurrencyData(defaultCountry);
+                    const defaultCountry = urlParams.get('country');
+                    if (defaultCountry) {
+                        select.val(defaultCountry);
+                        loadCurrencyData(defaultCountry);
+                    }
                 }
             },
             error: function() {
@@ -156,10 +143,14 @@ $(document).ready(function() {
         if (!countryCode) {
             $('#activeCurrencyDisplay').text('-');
             $('#activeCountryDisplay').text('Pilih negara');
+            $('#chartTitle').text('Pilih negara untuk melihat chart');
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
             return;
         }
 
-        // Ambil data negara
         $.ajax({
             url: apiBaseUrl + '/countries/' + countryCode,
             method: 'GET',
@@ -171,13 +162,10 @@ $(document).ready(function() {
                     currentCurrency = currency;
                     currentCountry = countryCode;
                     
-                    // Update tampilan
                     $('#activeCurrencyDisplay').text(currency);
                     $('#activeCountryDisplay').text(country.name + ' (' + countryCode + ')');
-                    $('#chartTitle').text(currency + '/USD');
+                    $('#chartTitle').text(currency + '/USD Trend (30 Hari)');
                     
-                    // Load chart & rates
-                    loadCurrencyRates();
                     loadCurrencyChart(currency);
                 }
             },
@@ -188,45 +176,17 @@ $(document).ready(function() {
     }
 
     // ========================================
-    // 3. LOAD CURRENCY RATES
-    // ========================================
-    function loadCurrencyRates() {
-        $.ajax({
-            url: apiBaseUrl + '/currency',
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    let html = '';
-                    const rates = response.data;
-                    const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'IDR', 'SGD', 'AUD', 'CNY', 'INR', 'MYR', 'PHP', 'THB', 'VND'];
-                    
-                    currencies.forEach(function(code) {
-                        if (rates[code]) {
-                            const value = rates[code];
-                            const isSelected = (code === currentCurrency);
-                            html += `
-                                <div class="d-flex justify-content-between align-items-center border-bottom py-2 ${isSelected ? 'bg-primary text-white' : ''}">
-                                    <strong>${code} ${isSelected ? '⭐' : ''}</strong>
-                                    <span>${value.toFixed(4)}</span>
-                                </div>
-                            `;
-                        }
-                    });
-                    
-                    $('#currencyRates').html(html || '<p class="text-muted text-center">Tidak ada data</p>');
-                }
-            },
-            error: function() {
-                $('#currencyRates').html('<p class="text-danger text-center">Gagal load data</p>');
-            }
-        });
-    }
-
-    // ========================================
-    // 4. LOAD CURRENCY CHART
+    // 3. LOAD CURRENCY CHART
     // ========================================
     function loadCurrencyChart(currency) {
         const code = currency || 'IDR';
+        
+        // Tampilkan loading
+        const chartContainer = $('#currencyChart').parent();
+        chartContainer.html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        
+        // Buat canvas baru di dalam container
+        chartContainer.html('<canvas id="currencyChart" style="width:100%;height:100%;"></canvas>');
         
         $.ajax({
             url: apiBaseUrl + '/currency/historical/' + code + '?days=30',
@@ -235,7 +195,7 @@ $(document).ready(function() {
                 if (response.success) {
                     const data = response.data;
                     if (!data || data.length === 0) {
-                        $('#currencyChart').parent().html('<p class="text-center text-muted">Tidak ada data untuk ' + code + '</p>');
+                        chartContainer.html('<p class="text-center text-muted py-5">Tidak ada data untuk ' + code + '</p>');
                         return;
                     }
                     
@@ -258,7 +218,8 @@ $(document).ready(function() {
                                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
                                 fill: true,
                                 tension: 0.4,
-                                pointRadius: 2,
+                                pointRadius: 3,
+                                pointBackgroundColor: '#3498db',
                                 pointHoverRadius: 6
                             }]
                         },
@@ -268,18 +229,40 @@ $(document).ready(function() {
                             plugins: {
                                 legend: { 
                                     display: true,
-                                    position: 'top'
+                                    position: 'top',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 15,
+                                        font: { size: 13 }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Rate: ' + context.parsed.y.toFixed(6);
+                                        }
+                                    }
                                 }
                             },
                             scales: {
                                 x: {
                                     ticks: {
-                                        maxTicksLimit: 15,
-                                        maxRotation: 45
+                                        maxTicksLimit: 12,
+                                        maxRotation: 45,
+                                        font: { size: 10 }
+                                    },
+                                    grid: {
+                                        display: false
                                     }
                                 },
                                 y: { 
-                                    beginAtZero: false
+                                    beginAtZero: false,
+                                    ticks: {
+                                        font: { size: 11 }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0,0,0,0.05)'
+                                    }
                                 }
                             }
                         }
@@ -287,19 +270,18 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                $('#currencyChart').parent().html('<p class="text-center text-danger">Gagal memuat data chart</p>');
+                chartContainer.html('<p class="text-center text-danger py-5">Gagal memuat data chart</p>');
             }
         });
     }
 
     // ========================================
-    // 5. EVENT HANDLERS
+    // 4. EVENT HANDLERS
     // ========================================
     $('#loadCountryBtn').on('click', function() {
         const countryCode = $('#countrySelect').val();
         if (countryCode) {
             loadCurrencyData(countryCode);
-            // Update URL dengan parameter
             const newUrl = window.location.pathname + '?country=' + countryCode;
             window.history.pushState({}, '', newUrl);
         } else {
@@ -308,15 +290,22 @@ $(document).ready(function() {
     });
 
     $('#countrySelect').on('change', function() {
-        // Auto-load saat dropdown berubah
         const countryCode = $(this).val();
         if (countryCode) {
             loadCurrencyData(countryCode);
+        } else {
+            $('#activeCurrencyDisplay').text('-');
+            $('#activeCountryDisplay').text('Pilih negara');
+            $('#chartTitle').text('Pilih negara untuk melihat chart');
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
         }
     });
 
     // ========================================
-    // 6. INIT
+    // 5. INIT
     // ========================================
     loadCountries();
 });

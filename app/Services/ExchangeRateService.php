@@ -32,7 +32,6 @@ class ExchangeRateService extends BaseService
 
             Log::error("Exchange Rate API Error: " . $response->status());
             
-            // Fallback ke exchangerate.host
             return $this->getFallbackRates($baseCurrency);
             
         } catch (\Exception $e) {
@@ -62,7 +61,6 @@ class ExchangeRateService extends BaseService
             Log::error("Fallback Exchange Rate Error: " . $e->getMessage());
         }
 
-        // Return dummy data jika semua gagal
         return $this->getDummyRates($baseCurrency);
     }
 
@@ -119,7 +117,6 @@ class ExchangeRateService extends BaseService
             return Cache::get($cacheKey);
         }
 
-        // 🔥 PAKAI CURRENT RATE + VARIASI REALISTIS
         $currentRate = $this->getRate('USD', $currency);
         
         if (!$currentRate || !isset($currentRate['rate'])) {

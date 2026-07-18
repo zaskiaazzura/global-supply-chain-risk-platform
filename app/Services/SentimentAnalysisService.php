@@ -22,7 +22,6 @@ class SentimentAnalysisService
 
         foreach ($news as $article) {
             $text = ($article['title'] ?? '') . ' ' . ($article['description'] ?? '');
-            // ✅ PERBAIKI: HANYA 1 PARAMETER
             $result = $this->analyzeText($text);
             
             $totalPositive += $result['positive'];
@@ -105,7 +104,6 @@ class SentimentAnalysisService
     public function analyzeArticle($title, $description = '')
     {
         $text = $title . ' ' . $description;
-        // ✅ PERBAIKI: HANYA 1 PARAMETER
         return $this->analyzeText($text);
     }
 

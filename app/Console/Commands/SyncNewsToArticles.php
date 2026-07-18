@@ -32,13 +32,11 @@ class SyncNewsToArticles extends Command
         $skipped = 0;
 
         foreach ($news as $item) {
-            // Cek apakah sudah ada di articles berdasarkan url
             if ($item->url && Article::where('url', $item->url)->exists()) {
                 $skipped++;
                 continue;
             }
 
-            // Analisis sentimen
             $text = ($item->title ?? '') . ' ' . ($item->description ?? '');
             $sentiment = $this->sentimentService->analyzeText($text);
 

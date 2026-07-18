@@ -10,7 +10,7 @@ abstract class BaseService
 {
     protected $baseUrl;
     protected $apiKey;
-    protected $cacheDuration = 3600; // 1 hour default
+    protected $cacheDuration = 3600; 
 
     /**
      * Make HTTP GET request with caching

@@ -27,6 +27,7 @@
     @stack('styles')
 </head>
 <body>
+    <body style="background: linear-gradient(135deg, #e8f0fe 0%, #d4e4f7 100%); min-height: 100vh;"></body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">

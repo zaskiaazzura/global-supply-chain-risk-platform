@@ -48,14 +48,12 @@ class UNLocodeSeeder extends Seeder
                     continue;
                 }
 
-                // 🔥 INDEX YANG BENAR (dari debug)
                 $countryAlpha2 = trim($data[1] ?? '');   // Index 1 = Country Code
                 $locationCode = trim($data[2] ?? '');    // Index 2 = Location Code
                 $name = trim($data[3] ?? '');            // Index 3 = Name
                 $function = trim($data[6] ?? '');        // Index 6 = Function
                 $coordinates = trim($data[10] ?? '');    // Index 10 = Coordinates
 
-                // Skip jika tidak ada nama atau kode negara
                 if (empty($countryAlpha2) || empty($locationCode) || empty($name)) {
                     $skipped++;
                     continue;

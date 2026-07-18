@@ -33,7 +33,6 @@ class Country extends Model
         'inflation_rate' => 'decimal:2',
     ];
 
-    // Relationships
     public function ports()
     {
         return $this->hasMany(Port::class);
@@ -69,7 +68,6 @@ class Country extends Model
         return $this->hasMany(EconomicIndicator::class);
     }
 
-    // Accessors
     public function getFlagEmojiAttribute()
     {
         $regionalOffset = 0x1F1E6;

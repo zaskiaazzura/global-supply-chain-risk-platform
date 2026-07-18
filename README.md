@@ -1,59 +1,262 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌍 Global Supply Chain Risk Intelligence Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.2-blue?style=flat&logo=php)
+![MySQL](https://img.shields.io/badge/MySQL-5.7+-orange?style=flat&logo=mysql)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?style=flat&logo=bootstrap)
+![Leaflet](https://img.shields.io/badge/Leaflet-1.9-green?style=flat&logo=leaflet)
 
-## About Laravel
+Sistem monitoring risiko rantai pasok global berbasis multi-API dan analitik data. Memantau secara otomatis estimasi pengiriman barang, perubahan kurs, kondisi cuaca, dan risiko logistik di seluruh dunia.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 **Daftar Isi**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi](#-teknologi)
+- [API yang Digunakan](#-api-yang-digunakan)
+- [Instalasi](#-instalasi)
+- [Struktur Database](#-struktur-database)
+- [REST API Endpoints](#-rest-api-endpoints)
+- [Screenshots](#-screenshots)
+- [Kontributor](#-kontributor)
+- [Lisensi](#-lisensi)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚀 **Fitur Utama**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. **Global Country Dashboard**
+- Pilih negara dari 250+ negara di dunia
+- Tampilkan GDP, inflasi, populasi, mata uang, dan cuaca saat ini
+- Data ekonomi dari World Bank API
+- Data cuaca real-time dari Open-Meteo API
 
-## Laravel Sponsors
+### 2. **Risk Scoring Engine**
+- Perhitungan risk score berbasis **Weighted Risk Model**
+- Komponen risiko:
+  - Weather Risk (30%)
+  - Inflation Risk (20%)
+  - Political News Risk (40%)
+  - Currency Risk (10%)
+- Output: Risk Score & Risk Level (Low/Medium/High/Critical)
+- Risk Breakdown Chart dengan Chart.js
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 3. **Global Weather Monitoring**
+- Peta dunia interaktif dengan Leaflet.js
+- Menampilkan cuaca (suhu, angin, kondisi) per negara
+- Marker cuaca dengan ikon dinamis (cerah, hujan, badai, dll)
+- Tabel cuaca global dengan filter dan pencarian
 
-### Premium Partners
+### 4. **Currency Impact Dashboard**
+- Nilai tukar real-time dari ExchangeRate API
+- Grafik tren 30 hari dengan Chart.js
+- Pilih mata uang berdasarkan negara
+- Analisis dampak kurs terhadap supply chain
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 5. **News Intelligence**
+- Berita terkini dari GNews API
+- Filter berita berdasarkan negara dan kategori
+- Tabel berita dengan pagination
 
-## Contributing
+### 6. **Sentiment Analysis (AI/Data Science)**
+- Lexicon-based sentiment analysis dengan PHP
+- Dictionary positif & negatif dari database
+- Output: Positive/Neutral/Negative (persentase)
+- Analisis otomatis untuk setiap berita
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 7. **Port Location Dashboard**
+- 11.748+ pelabuhan dari UN/LOCODE dataset
+- Peta interaktif dengan marker pelabuhan
+- Fitur cari pelabuhan dan filter negara
+- Informasi detail pelabuhan (nama, kota, tipe, ukuran)
 
-## Code of Conduct
+### 8. **Route Simulation**
+- Simulasikan rute antar negara atau pelabuhan
+- Tampilan garis rute di peta
+- Perkiraan jarak (km, miles, nautical miles)
+- Perkiraan waktu tempuh (pesawat & kapal)
+- Informasi pelabuhan terdekat
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 9. **Country Comparison Engine**
+- Bandingkan 2 negara berdasarkan GDP, Inflasi, Risk, Mata Uang
+- Visualisasi data dengan Chart.js
+- Perbandingan chart yang informatif
 
-## Security Vulnerabilities
+### 10. **Favorite Monitoring List**
+- User bisa menyimpan negara favorit
+- Toggle add/remove dengan satu tombol
+- Tampilan daftar favorit dengan informasi singkat
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 11. **Admin Dashboard**
+- **Manage Users**: CRUD user, role management (admin/user)
+- **Manage Ports**: CRUD pelabuhan
+- **Manage Articles**: CRUD artikel dengan sentiment analysis otomatis
+- Statistik dashboard (total users, ports, articles)
 
-## License
+### 12. **Data Visualization**
+- Grafik Risk Breakdown
+- Currency Trend Chart (30 hari)
+- GDP & Inflation Trend Chart
+- Comparison Chart (perbandingan 2 negara)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🛠️ **Teknologi**
+
+### **Backend**
+- **Framework**: Laravel 12.x
+- **PHP**: 8.2+
+- **Database**: MySQL 5.7+
+- **Authentication**: Manual (tanpa Breeze/Sanctum)
+
+### **Frontend**
+- **CSS Framework**: Bootstrap 5.3
+- **JavaScript**: ES6 + jQuery 3.6
+- **Mapping**: Leaflet.js 1.9
+- **Charts**: Chart.js 4.4
+- **Icons**: Font Awesome 6
+
+### **API & Services**
+- Open-Meteo API (cuaca)
+- World Bank API (ekonomi)
+- ExchangeRate API (kurs)
+- GNews API (berita)
+- Marine Traffic API (pelabuhan)
+- OpenStreetMap (peta)
+
+---
+
+## 🔌 **API yang Digunakan**
+
+| API | Fungsi | Status |
+|-----|--------|--------|
+| **Open-Meteo** | Cuaca real-time | ✅ Gratis, no API key |
+| **World Bank** | GDP, inflasi, populasi | ✅ Gratis, no API key |
+| **ExchangeRate** | Kurs mata uang | ⚠️ Free tier (100 req/hari) |
+| **GNews** | Berita logistik & ekonomi | ⚠️ Free tier (100 req/hari) |
+| **Marine Traffic** | Data pelabuhan | ⚠️ Free tier (terbatas) |
+| **OpenStreetMap** | Peta dunia | ✅ Gratis, no API key |
+
+---
+
+## 📥 **Instalasi**
+
+### **Prasyarat**
+- PHP 8.2+
+- Composer
+- MySQL 5.7+
+- XAMPP / Laragon / LAMP
+
+### **Langkah Instalasi**
+
+```bash
+# 1. Clone repository
+git clone https://github.com/username/supply-chain-monitoring.git
+cd supply-chain-monitoring
+
+# 2. Install dependencies
+composer install
+
+# 3. Copy environment file
+cp .env.example .env
+
+# 4. Generate application key
+php artisan key:generate
+
+# 5. Setup database di .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=supply_chain_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+# 6. Jalankan migration & seeder
+php artisan migrate --seed
+
+# 7. Import ports data (UN/LOCODE)
+php artisan db:seed --class=UNLocodeSeeder
+
+# 8. Sync news to articles
+php artisan news:sync-to-articles
+
+# 9. Jalankan server
+php artisan serve
+
+Login Default
+Email: admin@example.com
+Password: password
+
+🗄️ Struktur Database
+Tabel Utama (30 Tabel)
+No	Tabel	Fungsi	Keterangan
+1	users	Data user sistem	Role: admin/user
+2	countries	Data 250+ negara	GDP, inflasi, populasi, mata uang
+3	ports	Data 11.748+ pelabuhan	Dari UN/LOCODE dataset
+4	risk_scores	Hasil perhitungan risk score	Weather, Inflation, Political, Currency, Logistics
+5	risk_weights	Bobot indikator risiko	Weather 30%, Inflation 20%, Political 40%, Currency 10%
+6	news_cache	Berita dari GNews API	Logistics, Trade, Shipping, Economy
+7	articles	Artikel admin dengan sentiment	Positive/Negative/Neutral + score
+8	watchlist	Daftar negara favorit user	User_id + Country_id
+9	currencies	Data kurs mata uang	USD, EUR, IDR, dll
+10	positive_words	Kamus kata positif	growth, increase, profit, stable, improve
+11	negative_words	Kamus kata negatif	war, crisis, inflation, delay, disaster
+12	weather_data	Cache data cuaca	Dari Open-Meteo API
+13	historical_rates	Histori kurs 30 hari	Untuk currency trend chart
+14	trade_data	Data perdagangan	Ekspor, impor, trade balance
+15	shipping_routes	Data rute pengiriman	Origin-Destination port
+16	country_comparisons	Cache perbandingan negara	GDP, Inflation, Risk, Weather, Currency
+17	economic_indicators	Data indikator ekonomi	GDP, Inflation, Unemployment
+18	user_preferences	Preferensi user	Tema, layout, default currency
+19	system_logs	Log sistem	Debugging & monitoring
+20	api_call_logs	Log pemanggilan API	Tracking API usage
+21	notifications	Notifikasi user	Alert, warning, info
+22	cache	Cache Laravel	Internal
+23	cache_locks	Lock cache	Internal
+24	failed_jobs	Job gagal	Internal
+25	jobs	Antrian job	Internal
+26	job_batches	Batch job	Internal
+27	migrations	Log migration	Internal
+28	password_reset_tokens	Token reset password	Internal
+29	sessions	Session user	Internal
+30	negative_words	(Backup)	-
+
+Relasi Antar Tabel
+text
+users ──┬── watchlist ──┬── countries
+        └── notifications
+                │
+countries ──┬── risk_scores
+            ├── ports
+            ├── news_cache
+            ├── articles
+            ├── weather_data
+            ├── trade_data
+            └── currency
+                    │
+news_cache ──┬── articles (sync)
+             └── sentiment_analysis
+                    │
+positive_words ──┐
+negative_words ──┴── sentiment_analysis
+
+📡 REST API Endpoints
+Method	Endpoint	Deskripsi
+GET	/api/countries	Get all countries
+GET	/api/countries/{code}	Get country details
+GET	/api/countries/compare/{code1}/{code2}	Compare two countries
+GET	/api/risk	Get all risk scores
+GET	/api/risk/{country}	Get risk score by country
+GET	/api/risk/calculate/{country}	Calculate risk score
+POST	/api/risk/recalculate-all	Recalculate all risk scores
+GET	/api/ports	Get all ports
+GET	/api/ports/search	Search ports
+GET	/api/ports/country/{code}	Get ports by country
+GET	/api/news	Get news
+GET	/api/news/category/{category}	Get news by category
+GET	/api/news/country/{country}	Get news by country
+GET	/api/news/sentiment/{country}	Get sentiment analysis
+GET	/api/currency	Get currency rates
+GET	/api/currency/convert	Convert currency
+GET	/api/currency/historical/{code}	Get historical rates

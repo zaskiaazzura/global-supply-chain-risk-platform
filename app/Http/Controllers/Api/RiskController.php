@@ -117,18 +117,15 @@ class RiskController extends Controller
         $success = 0;
         $errors = [];
 
-        // Proses per negara dengan delay kecil
         foreach ($countries as $index => $country) {
             try {
                 $this->riskService->calculateRiskScore($country);
                 $success++;
                 
-                // Log progress setiap 10 negara
                 if ($success % 10 == 0) {
                     \Log::info("Risk calculation progress: {$success}/{$total}");
                 }
                 
-                // Delay 0.5 detik agar tidak overload API
                 usleep(500000);
                 
             } catch (\Exception $e) {

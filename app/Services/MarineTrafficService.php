@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class MarineTrafficService extends BaseService
 {
     protected $baseUrl = 'https://api.marinetraffic.com/api/v2';
-    protected $cacheDuration = 3600; // 1 hour
+    protected $cacheDuration = 3600; 
 
     public function __construct()
     {
@@ -108,7 +108,7 @@ class MarineTrafficService extends BaseService
         $queryParams = array_merge([
             'api_key' => $this->apiKey,
             'format' => 'json',
-            'limit' => 500, // Maksimal 500 per request
+            'limit' => 500, 
         ], $params);
 
         $response = $this->get($endpoint, $queryParams);
@@ -134,7 +134,6 @@ class MarineTrafficService extends BaseService
             $params = ['limit' => $limit, 'offset' => $offset];
             $response = $this->getPorts($params);
 
-            // Jika response error atau kosong, berhenti
             if (!$response || !isset($response['data']) || empty($response['data'])) {
                 $hasMore = false;
                 break;
@@ -173,14 +172,12 @@ class MarineTrafficService extends BaseService
 
             $totalSaved += $count;
 
-            // Jika jumlah port yang didapat kurang dari limit, berarti sudah habis
             if (count($ports) < $limit) {
                 $hasMore = false;
             } else {
                 $offset += $limit;
             }
 
-            // Sleep agar tidak kena rate limit
             sleep(1);
         }
 

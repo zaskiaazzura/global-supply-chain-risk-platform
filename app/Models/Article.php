@@ -28,7 +28,6 @@ class Article extends Model
         return $this->belongsTo(Country::class);
     }
 
-    // Helper untuk sentiment badge
     public function getSentimentBadgeAttribute()
     {
         if (!$this->sentiment) return 'secondary';
@@ -39,7 +38,6 @@ class Article extends Model
         };
     }
 
-    // Helper untuk format sentiment
     public function getSentimentLabelAttribute()
     {
         return $this->sentiment ? ucfirst($this->sentiment) : 'N/A';

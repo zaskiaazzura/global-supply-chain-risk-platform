@@ -14,7 +14,7 @@ class RiskScoreService
     protected $openMeteo;
     protected $worldBank;
     protected $sentiment;
-    protected $cacheDuration = 3600; // 1 jam cache
+    protected $cacheDuration = 3600; 
     protected $exchangeRate;
 
     public function __construct(

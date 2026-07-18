@@ -81,7 +81,15 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-map-marked-alt text-danger"></i> Rute Peta</h5>
-                        <div id="routeMap" style="height: 450px; border-radius: 8px;"></div>
+                        <!-- MAP DENGAN LOADING INDICATOR -->
+                        <div id="routeMap" style="height: 450px; border-radius: 8px; position: relative; background: #f0f0f0;">
+                            <div id="mapLoading" class="text-center py-5" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Memuat peta...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -136,37 +144,51 @@ $(document).ready(function() {
     let markerFrom = null;
     let markerTo = null;
     let allPorts = [];
+    let mapInitialized = false;
 
     // ========================================
-    // 1. INIT MAP (PASTIKAN DIV ADA)
+    // 1. INIT MAP (HANYA 1 KALI)
     // ========================================
     function initMap() {
+        if (mapInitialized) return;
+        
         const mapContainer = document.getElementById('routeMap');
         if (!mapContainer) {
             console.error('Map container #routeMap not found!');
             return;
         }
 
+        const loading = document.getElementById('mapLoading');
+        if (loading) loading.style.display = 'none';
+
         map = L.map('routeMap', {
             center: [0, 0],
             zoom: 2
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
+
+        mapInitialized = true;
+        console.log('Map initialized');
     }
 
     // ========================================
-    // 2. LOAD PORTS (HANYA 500)
+    // 2. LOAD PORTS (HANYA SAAT DIPILIH)
     // ========================================
+    let portsLoaded = false;
+
     function loadPorts() {
+        if (portsLoaded) return;
+        
         $.ajax({
             url: window.baseUrl + '/api/ports?limit=500',
             method: 'GET',
             success: function(response) {
                 if (response.success) {
                     allPorts = response.data;
+                    portsLoaded = true;
                     populatePortDropdowns();
                 }
             },
@@ -235,7 +257,7 @@ $(document).ready(function() {
         } else {
             fromLabel.text('Pelabuhan Asal');
             toLabel.text('Pelabuhan Tujuan');
-            populatePortDropdowns();
+            loadPorts(); 
         }
     }
 
@@ -243,7 +265,11 @@ $(document).ready(function() {
     // 5. RADIO BUTTON
     // ========================================
     $('input[name="routeType"]').on('change', function() {
-        switchRouteType($(this).val());
+        const type = $(this).val();
+        if (type === 'port') {
+            loadPorts();
+        }
+        switchRouteType(type);
     });
 
     // ========================================
@@ -265,6 +291,8 @@ $(document).ready(function() {
             alert('Pilih lokasi yang berbeda!');
             return;
         }
+
+        initMap();
 
         $.ajax({
             url: window.baseUrl + '/api/route-simulation',
@@ -386,10 +414,9 @@ $(document).ready(function() {
     };
 
     // ========================================
-    // 9. INIT
+    // 9. INIT (MAP TIDAK LANGSUNG DI-LOAD)
     // ========================================
-    initMap();
-    loadPorts();
+    console.log('Route Simulation ready. Map will load on demand.');
 });
 </script>
 @endpush

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 class GNewsService extends BaseService
 {
     protected $baseUrl = 'https://gnews.io/api/v4';
-    protected $cacheDuration = 600; // 10 minutes
+    protected $cacheDuration = 600; 
 
     public function __construct()
     {
@@ -22,7 +22,7 @@ class GNewsService extends BaseService
     {
         if (!$this->apiKey) {
             Log::warning('GNews API key not configured');
-            return $this->getDummyNews();
+            return [$this->getDummyNews()];
         }
 
         $endpoint = '/search';
@@ -47,7 +47,6 @@ class GNewsService extends BaseService
             return $response['articles'];
         }
 
-        // Fallback to dummy news
         return $this->getDummyNews();
     }
 
@@ -73,7 +72,6 @@ class GNewsService extends BaseService
             }
         }
 
-        // Remove duplicates based on title
         $uniqueNews = [];
         $titles = [];
         foreach ($allNews as $article) {
@@ -175,7 +173,6 @@ class GNewsService extends BaseService
             }
         }
         
-        // Hapus duplikat berdasarkan title
         $unique = [];
         $titles = [];
         foreach ($allArticles as $article) {
@@ -186,5 +183,23 @@ class GNewsService extends BaseService
         }
         
         return $unique;
+    }
+
+    /**
+     * Get dummy news (fallback when API fails)
+     */
+    private function getDummyNews()
+    {
+        // Jika tidak mau dummy, return empty array
+        return [
+            [
+            'title' => 'Supply chain update: Global logistics face new challenges',
+            'description' => 'Recent developments in global supply chains...',
+            'content' => 'Full content here...',
+            'source' => ['name' => 'Supply Chain News'],
+            'url' => '#',
+            'publishedAt' => now()->toISOString()
+            ]
+        ];
     }
 }

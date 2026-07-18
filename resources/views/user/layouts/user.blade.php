@@ -20,11 +20,34 @@
     
     <style>
         body { background-color: #f0f2f5; }
+        
+        /* SIDEBAR STICKY - TETAP DI POSISI SAAT SCROLL */
         .sidebar {
             min-height: 100vh;
             background: #1a1a2e;
             padding-top: 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
+        
+        /* SCROLLBAR SIDEBAR */
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #3a3a5e;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #5a5a8e;
+        }
+
         .sidebar .brand {
             color: white;
             font-size: 1.2rem;
@@ -60,13 +83,18 @@
             background: #e74c3c;
             color: white;
         }
-        .main-content { padding: 20px; }
+        
+        /* MAIN CONTENT */
+        .main-content { 
+            padding: 20px;
+            min-height: 100vh;
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <!-- Sidebar -->
+            <!-- Sidebar - STICKY -->
             <div class="col-md-2 sidebar">
                 <div class="brand">
                     <i class="fas fa-globe"></i> Supply Chain Risk

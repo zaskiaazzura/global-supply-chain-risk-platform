@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 class OpenMeteoService extends BaseService
 {
     protected $baseUrl = 'https://api.open-meteo.com/v1';
-    protected $cacheDuration = 3600; // 1 jam (dari 30 menit)
+    protected $cacheDuration = 3600; 
 
     /**
      * Get current weather for coordinates
@@ -67,7 +67,6 @@ class OpenMeteoService extends BaseService
     public function getStormRisk($latitude, $longitude)
     {
         try {
-            // Set timeout 5 detik saja
             $weather = $this->getCurrentWeather($latitude, $longitude);
             
             if (!$weather || !isset($weather['current_weather'])) {

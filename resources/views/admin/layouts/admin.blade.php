@@ -118,7 +118,7 @@
                     
                     <hr style="border-color: #34495e; margin: 15px 10px;">
                     
-                    <!-- ✅ LINK KE PUBLIC DASHBOARD -->
+                    <!-- LINK KE PUBLIC DASHBOARD -->
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <i class="fas fa-globe"></i> Public Dashboard
                     </a>
